@@ -1,24 +1,42 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import axios from 'axios';
 
+let timer = reactive({});
+
 const yiyan = ref('永远都有更好，但眼下便是最好');
-const apiList = ref(['https://aapi.vvhan.com/api/text/love', 'https://v1.hitokoto.cn?encode=text', '/tenapi/yiyan', '/uapis/say']);
+const apiList = ref(['https://api.vvhan.com/api/text/love', 'https://v1.hitokoto.cn?encode=text', 'https://tenapi.cn/v2/yiyan', 'https://uapis.cn/api/say']);
 const apiUse = ref('');
 const apiAvailability = ref(10);
-const yiyanCatch = ref(false);
 
 // 挂载！
 onMounted(() => {
     // 初始化一言
     apiUse.value = apiList.value[0];
     updateYiyan();
+    // 定时执行
+    timer = setInterval(() => {
+        updateYiyan();
+    }, 6000);
 });
+
+// 取消挂载！
+onUnmounted(() => {
+    clearTimer();
+});
+
+// 清除一言计时器
+const clearTimer = () => {
+    if (timer) {
+        clearInterval(timer);
+        timer = null;
+    }
+};
 
 // 一言渐变更新
 let updateYiyan = () => {
-    // 获取yiyan元素
-    const span = document.querySelector('.yiyan') as HTMLBodyElement;
+    // 获取类名含有yiyan的元素
+    const span = document.querySelector('.yiyan');
     // 获取一言
     axios
         .request({
@@ -45,18 +63,10 @@ let updateYiyan = () => {
                 // 为yiyan元素添加渐显效果
                 span.style.opacity = '1';
             }, 500);
-            yiyanCatch.value = false;
         })
         .catch(() => {
             switchApi();
-            yiyanCatch.value = true;
             return updateYiyan();
-        })
-        .finally(() => {
-            if (yiyanCatch.value) return;
-            setTimeout(() => {
-                updateYiyan();
-            }, 6000);
         });
 };
 
@@ -79,11 +89,13 @@ watch(apiAvailability, (newValue) => {
     if (newValue === 0) {
         console.warn('API 可用性已降至 0');
         // 中断一言更新函数
-        updateYiyan = () => {};
+        updateYiyan = null;
+        // 清除一言定时器
+        clearTimer();
         // 固定一言显示
         yiyan.value = '永远都有更好，但眼下便是最好';
-        // 获取yiyan元素
-        const span = document.querySelector('.yiyan') as HTMLBodyElement;
+        // 获取类名含有yiyan的元素
+        const span = document.querySelector('.yiyan');
         // 为yiyan元素添加渐显效果
         span.style.opacity = '1';
     }

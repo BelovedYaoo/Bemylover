@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useLayout } from '../service/layout';
 import { useRoute } from 'vue-router';
-import { storeState, useMainStore } from '../service/store';
+import { StoreStateInterface, useAgilityCoreStore } from '../service/store';
 import { storeToRefs } from 'pinia';
 
 interface AppLayoutProps {
@@ -74,8 +74,8 @@ const isOutsideClicked = (event: PointerEvent) => {
     }
 };
 
-const store = useMainStore();
-const { windowWidth, windowHeight } = storeToRefs<storeState>(store);
+const store = useAgilityCoreStore();
+const { windowWidth, windowHeight } = storeToRefs<StoreStateInterface>(store);
 
 onMounted(() => {
     window.addEventListener('resize', getWindowResize);

@@ -19,7 +19,7 @@ const checked = ref(false);
 const passwordIsFocus = ref(false);
 const openIdIsFocus = ref(false);
 
-const errorToast = (className, summary, detail) => {
+const errorToast = (className:string, summary:string, detail:string) => {
     toast.add({
         severity: 'error',
         summary: summary,
@@ -62,7 +62,7 @@ const login = () => {
             // pwd: btoa(sha256().update(password.value).digest('hex'))
             password: password.value
         }
-    }).then((res) => {
+    }).then((res:AxiosResponse) => {
         toast.add(responseToastConfig(res));
         if (res.data.code === 200 && res.data.data.tokenValue !== null) {
             // token存入cookie

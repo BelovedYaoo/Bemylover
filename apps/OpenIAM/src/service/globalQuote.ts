@@ -32,7 +32,7 @@ export const addClassById = (id: string, className: string, duringSecond: number
     }
 };
 
-export const getParameterByName = (name, url = window.location.href) => {
+export const getParameterByName = (name:string, url = window.location.href) => {
     name = name.replace(/[\[\]]/g, '\\$&');
     const regex = new RegExp(`[?&]${  name  }(=([^&#]*)|&|#|$)`),
         results = regex.exec(url);

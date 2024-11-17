@@ -8,7 +8,6 @@ const layoutConfig = reactive({
     inputStyle: 'outlined',
     menuMode: 'static',
     scale: 14,
-    activeMenuItem: null
 });
 
 const layoutState = reactive({
@@ -17,7 +16,8 @@ const layoutState = reactive({
     profileSidebarVisible: false,
     configSidebarVisible: false,
     staticMenuMobileActive: false,
-    menuHoverActive: false
+    menuHoverActive: false,
+    activeMenuItem: null
 });
 
 export function useLayout() {
@@ -41,7 +41,7 @@ export function useLayout() {
     };
 
     const setActiveMenuItem = (item: any) => {
-        layoutConfig.activeMenuItem = item.value || item;
+        layoutState.activeMenuItem = item.value || item;
     };
 
     const onMenuToggle = () => {

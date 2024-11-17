@@ -55,7 +55,7 @@ const isOutsideClicked = (event:PointerEvent) => {
     return !(sidebarEl.isSameNode(event.target as Node) || sidebarEl.contains(event.target as Node) || topbarEl.isSameNode(event.target as Node) || topbarEl.contains(event.target as Node));
 };
 const logoUrl = computed(() => {
-    return `https://belovedyaoo.top:3300/directlink/local/Bemylover/AgilityCore/${layoutConfig.darkTheme.value ? 'day' : 'night'}.svg`;
+    return `images/${layoutConfig.darkTheme.value ? 'day' : 'night'}.svg`;
 });
 </script>
 

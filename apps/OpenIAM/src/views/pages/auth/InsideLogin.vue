@@ -8,6 +8,7 @@ import request from '@/service/request';
 import router from '@/service/router';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
+import { AxiosResponse } from 'axios';
 
 const toast = useToast();
 
@@ -19,7 +20,7 @@ const checked = ref(false);
 const passwordIsFocus = ref(false);
 const openIdIsFocus = ref(false);
 
-const errorToast = (className, summary, detail) => {
+const errorToast = (className:string, summary:string, detail:string) => {
     toast.add({
         severity: 'error',
         summary: summary,
@@ -53,7 +54,7 @@ const login = () => {
             openId: openId.value,
             password: btoa(sha256().update(password.value).digest('hex'))
         }
-    }).then((res) => {
+    }).then((res:AxiosResponse) => {
         toast.add(responseToastConfig(res));
         if (res.data.code === 200 && res.data.data.tokenValue !== null) {
             // token存入cookie

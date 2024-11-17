@@ -6,7 +6,7 @@ import { Icon } from '@iconify/vue';
 
 const route = useRoute();
 
-const { layoutConfig, layoutState, setActiveMenuItem, onMenuToggle } = useLayout();
+const { layoutState, setActiveMenuItem, onMenuToggle } = useLayout();
 
 const props = defineProps({
     item: {
@@ -31,16 +31,15 @@ const isActiveMenu = ref(false);
 const itemKey = ref();
 
 onBeforeMount(() => {
-    itemKey.value = props.parentItemKey ? `${props.parentItemKey}-${props.index}` : String(props.index);
-
+    itemKey.value = props.parentItemKey ? `${props.parentItemKey  }-${  props.index}` : String(props.index);
     const activeItem = layoutState.activeMenuItem;
-
-    isActiveMenu.value = activeItem === itemKey.value || activeItem ? activeItem.startsWith(`${itemKey.value}-`) : false;
+    isActiveMenu.value = activeItem === itemKey.value || activeItem.value ? activeItem.value.startsWith(`${itemKey.value  }-`) : false;
 });
 
 watch(
-    () => layoutConfig.activeMenuItem.value,
+    () => layoutState.activeMenuItem.value,
     (newVal) => {
+        if (!newVal) return;
         isActiveMenu.value = newVal === itemKey.value || newVal.startsWith(`${itemKey.value}-`);
     }
 );

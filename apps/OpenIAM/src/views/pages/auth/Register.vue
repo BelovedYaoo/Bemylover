@@ -6,6 +6,7 @@ import { sha256 } from 'hash.js';
 import { addClassById, globalConfig, responseToastConfig } from '@/service/globalQuote';
 import request from '@/service/request';
 import LogoSvg from '@/components/LogoSvg.vue';
+import { AxiosResponse } from 'axios';
 
 const router = useRouter();
 const toast = useToast();
@@ -83,7 +84,7 @@ const registerAccount = () => {
             phone: phone.value,
             email: email.value
         },
-    }).then((response) => {
+    }).then((response:AxiosResponse) => {
         toast.add(responseToastConfig(response));
     });
 };
@@ -121,7 +122,7 @@ const getVerifyCode = () => {
             phone: phone.value,
             email: email.value
         }
-    }).then((response) => {
+    }).then((response:AxiosResponse) => {
         toast.add(responseToastConfig(response));
     });
 };

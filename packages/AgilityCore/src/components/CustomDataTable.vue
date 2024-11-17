@@ -8,7 +8,7 @@ import {
     DataTableSortEvent
 } from 'primevue/datatable';
 import { useLayout } from '../service/layout';
-import { storeState, useMainStore } from '../service/store';
+import { StoreStateInterface, useAgilityCoreStore } from '../service/store';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
 
@@ -103,8 +103,8 @@ const onPageChange = (event: DataTablePageEvent) => {
 };
 
 // 从状态仓库取出窗口宽度与高度
-const store = useMainStore();
-const { windowWidth, windowHeight } = storeToRefs<storeState>(store);
+const store = useAgilityCoreStore();
+const { windowWidth, windowHeight } = storeToRefs<StoreStateInterface>(store);
 
 const { layoutState } = useLayout();
 
