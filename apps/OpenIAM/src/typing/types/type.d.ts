@@ -1,4 +1,4 @@
-/// <reference types="./_baseFiled" />
+import { BaseFiled } from 'agility-core/src/types/base';
 
 /**
  * (Account) 表持久化对象

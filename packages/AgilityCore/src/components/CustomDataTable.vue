@@ -11,6 +11,7 @@ import { useLayout } from '../service/layout';
 import { StoreStateInterface, useAgilityCoreStore } from '../service/store';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
+import { BaseFiled } from '../types/base';
 
 const toast = useToast();
 

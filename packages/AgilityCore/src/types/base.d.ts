@@ -3,7 +3,7 @@
  * @author BelovedYaoo
  * @version 1.6
  */
-interface BaseFiled {
+export interface BaseFiled {
     baseId?: string;
     orderNum?: number;
     createTime?: Date;
@@ -18,7 +18,7 @@ interface BaseFiled {
  * @author BelovedYaoo
  * @version 1.0
  */
-interface AppMenuItem {
+export interface AppMenuItem {
     to?: string
     items?:AppMenuItem[]
     visible?: boolean
