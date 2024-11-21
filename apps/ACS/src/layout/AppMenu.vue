@@ -13,6 +13,23 @@ const model = ref([
         ]
     },
     {
+        label: '数据管理',
+        items: [
+            {
+                label: '课程表',
+                mdi: 'mdi:table',
+                style: {width: '18px', height: '17px'},
+                to: '/control/classSchedule'
+            },
+            {
+                label: '数据配置',
+                mdi: 'mdi:table',
+                style: {width: '18px', height: '17px'},
+                to: '/control/enterpriseConfig'
+            }
+        ]
+    },
+    {
         label: 'Pages',
         icon: 'pi pi-fw pi-briefcase',
         to: '/pages',

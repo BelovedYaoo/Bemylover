@@ -5,7 +5,7 @@ import { BaseFiled } from 'agility-core/src/types/base';
  * @author BelovedYaoo
  * @version 1.1
  */
-interface Account extends BaseFiled {
+export interface Account extends BaseFiled {
     openId?: string;
     password?: string;
     phone?: string;

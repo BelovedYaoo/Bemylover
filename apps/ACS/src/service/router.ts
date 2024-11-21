@@ -26,6 +26,21 @@ const router = createRouter({
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
                 },
+                {
+                    path: '/control',
+                    children: [
+                        {
+                            path: 'classSchedule',
+                            name: 'classSchedule',
+                            component: () => import('@/views/control/ClassSchedule.vue')
+                        },
+                        {
+                            path: 'enterpriseConfig',
+                            name: 'enterpriseConfig',
+                            component: () => import('@/views/control/EnterpriseConfig.vue')
+                        },
+                    ]
+                },
             ]
         },
         {
@@ -62,7 +77,7 @@ router.beforeEach((to, from, next) => {
     } else if (code !== '' && code !== null && code !== undefined) {
         request({
             method: 'GET',
-            url: '/codeLogin',
+            url: '/openAuth/codeLogin',
             params: {
                 code: code,
             }

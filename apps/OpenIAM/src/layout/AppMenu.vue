@@ -5,22 +5,27 @@ import AppMenuItem from 'agility-core/src/layout/AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
+        label: '主控',
         items: [
             {
-                label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/'
+                label: '仪表盘', icon: 'pi pi-fw pi-home', to: '/'
             }
         ]
     },
     {
-        label: 'CONTROL',
+        label: '数据管理',
         items: [
             {
                 label: '用户管理',
                 icon: 'pi pi-fw pi-user',
                 items: [
                     {
-                        label: '用户列表',
+                        label: '用户',
+                        icon: 'pi pi-fw pi-users',
+                        to: '/control/userControl'
+                    },
+                    {
+                        label: '用户组',
                         icon: 'pi pi-fw pi-users',
                         to: '/control/userControl'
                     }
@@ -32,7 +37,41 @@ const model = ref([
                 style: {width:'18px',height:'17px'},
                 items: [
                     {
-                        label: '应用列表',
+                        label: '应用',
+                        mdi: 'mdi:table',
+                        style: {width:'18px',height:'17px'},
+                        to: '/control/userControl'
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        label: '权限控制',
+        items: [
+            {
+                label: '角色控制',
+                icon: 'pi pi-fw pi-user',
+                items: [
+                    {
+                        label: '用户',
+                        icon: 'pi pi-fw pi-users',
+                        to: '/control/userControl'
+                    },
+                    {
+                        label: '用户组',
+                        icon: 'pi pi-fw pi-users',
+                        to: '/control/userControl'
+                    }
+                ]
+            },
+            {
+                label: '应用管理',
+                mdi: 'mdi:table',
+                style: {width:'18px',height:'17px'},
+                items: [
+                    {
+                        label: '应用',
                         mdi: 'mdi:table',
                         style: {width:'18px',height:'17px'},
                         to: '/control/userControl'

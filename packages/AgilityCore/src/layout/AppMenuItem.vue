@@ -55,10 +55,6 @@ const itemClick = (event: MouseEvent | PointerEvent, item: any) => {
         onMenuToggle();
     }
 
-    if (item.command) {
-        item.command({ originalEvent: event, item: item });
-    }
-
     const foundItemKey = item.items ? (isActiveMenu.value ? props.parentItemKey : itemKey) : itemKey.value;
 
     setActiveMenuItem(foundItemKey);
@@ -84,8 +80,6 @@ const checkActiveRoute = (item: any) => {
                      :to="item.to" tabindex="0" @click="itemClick($event, item)">
             <i v-if="item.icon&&!item.mdi" :class="item.icon" class="layout-menuitem-icon"></i>
             <Icon v-else :icon="item.mdi" :style="item.style" class="layout-menuitem-icon"/>
-            <Avatar v-if="item.img" :image="item.img" class="mr-2 border-circle" shape="circle"
-                    style="width: 18px; height: 18px"/>
             <span class="layout-menuitem-text font-semibold">{{ item.label }}</span>
             <i v-if="item.items" class="pi pi-fw pi-angle-down layout-submenu-toggler"></i>
         </router-link>

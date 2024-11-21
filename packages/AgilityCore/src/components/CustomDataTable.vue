@@ -17,10 +17,10 @@ const toast = useToast();
 
 interface customTableProps {
     tableName: string,
-    tableData: Array<BaseFiled>,
+    tableData: Array<BaseFiled> | undefined,
     onTableDataRefresh: () => void,
     onRowReorder: (event: DataTableRowReorderEvent) => void,
-    onRowModify: (record: BaseFiled) => void,
+    onRowUpdateOrAdd: (record: BaseFiled) => void,
     onRowDelete: (record: BaseFiled[]) => void,
     onOrderSwap: (record: BaseFiled[]) => void,
 }
@@ -36,7 +36,7 @@ onBeforeMount(() => {
 const keywordFilters = ref();
 const initFilters = () => {
     keywordFilters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        global: {value: null, matchMode: FilterMatchMode.CONTAINS},
     };
 };
 
@@ -58,14 +58,14 @@ const paletteToggle = (event: MouseEvent) => {
 
 // 表格大小选项
 const sizeOptions = ref([
-    { label: '较小', value: 'small', class: 'sm' },
-    { label: '默认', value: 'normal', class: '' },
-    { label: '较大', value: 'large', class: 'lg' }
+    {label: '较小', value: 'small', class: 'sm'},
+    {label: '默认', value: 'normal', class: ''},
+    {label: '较大', value: 'large', class: 'lg'}
 ]);
 
 // 表格样式选项
 const dataTableStyle = ref({
-    size: { label: '默认', value: 'normal', class: '' },
+    size: {label: '默认', value: 'normal', class: ''},
     showGridlines: false,
     stripedRows: true,
     rowsPerPage: 10,
@@ -88,14 +88,16 @@ watch(() => dataTableStyle.value.rowsPerPage, (newValue, oldValue) => {
 
 // 监听表格数据变化
 watch(() => props.tableData, () => {
+    const length = props.tableData?.length;
     // 修正总记录数
-    totalRecords.value = props.tableData.length;
+    totalRecords.value = length?length : 0;
     correctTotalPages();
 });
 
 // 修正总页数
 const correctTotalPages = () => {
-    totalPages.value = Math.ceil(props.tableData.length / dataTableStyle.value.rowsPerPage);
+    const length = props.tableData?.length;
+    totalPages.value = Math.ceil((length?length : 0)/ dataTableStyle.value.rowsPerPage);
 };
 
 // 当通过表格分页器切换分页时，通知底部分页器同步
@@ -105,9 +107,9 @@ const onPageChange = (event: DataTablePageEvent) => {
 
 // 从状态仓库取出窗口宽度与高度
 const store = useAgilityCoreStore();
-const { windowWidth, windowHeight } = storeToRefs<StoreStateInterface>(store);
+const {windowWidth, windowHeight} = storeToRefs<StoreStateInterface>(store);
 
-const { layoutState } = useLayout();
+const {layoutState} = useLayout();
 
 // 表格底部显示
 const showFooter = computed(() => {
@@ -122,7 +124,7 @@ const miniShow = computed(() => {
 // 表数据导出
 const dataTable = ref();
 const exportCSV = () => {
-    dataTable.value.exportCSV(enableSortedAndSelected.value ? { selectionOnly: true } : undefined);
+    dataTable.value.exportCSV(enableSortedAndSelected.value ? {selectionOnly: true} : undefined);
 };
 
 // 表右键菜单
@@ -139,7 +141,7 @@ const menuModel = computed(() => {
         {
             label: '修改',
             icon: 'pi pi-fw pi-pencil',
-            command: () => modifyRecord(contextMenuSelection.value)
+            command: () => updateOrAddRecord(contextMenuSelection.value)
         },
         {
             label: '删除',
@@ -175,9 +177,9 @@ const onTableDataRefresh = () => {
     props.onTableDataRefresh();
 };
 
-// 修改逻辑
-const modifyRecord = (modifyRecord: BaseFiled) => {
-    props.onRowModify(modifyRecord);
+// 修改或新增逻辑
+const updateOrAddRecord = (record: BaseFiled) => {
+    props.onRowUpdateOrAdd(record);
 };
 
 // 删除逻辑
@@ -254,22 +256,32 @@ const orderSwap = (swapRecords: BaseFiled[]) => {
                             <InputText v-model="keywordFilters['global'].value" :class="miniShow?'w-10rem':'w-13rem'"
                                        placeholder="输入以搜索" type="text"/>
                         </span>
-                    <!-- 刷新按钮 -->
-                    <Button v-if="!miniShow" icon="pi pi-refresh" raised rounded @click="onTableDataRefresh"/>
-                    <!-- 修改按钮 -->
-                    <Button v-if="!miniShow" icon="pi pi-bars" raised rounded
-                            @click="switchedAndSelectedToggle"/>
+                    <div v-if="!miniShow" class="flex gap-4">
+                        <!-- 刷新按钮 -->
+                        <Button icon="pi pi-refresh" raised rounded @click="onTableDataRefresh"/>
+                        <!-- 修改按钮 -->
+                        <Button icon="pi pi-bars" raised rounded
+                                @click="switchedAndSelectedToggle"/>
+                        <Button icon="pi pi-plus" raised rounded
+                                @click="updateOrAddRecord({})"/>
+                        <slot name="headerButton"></slot>
+                    </div>
                     <!-- 配置按钮 -->
                     <Button icon="pi pi-cog" raised rounded @click="paletteToggle"/>
                     <OverlayPanel ref="paletteOp">
                         <div class="flex flex-column gap-3">
                             <div class="flex flex-row gap-3">
-                                <!-- 刷新按钮 -->
-                                <Button v-if="miniShow" icon="pi pi-refresh" raised rounded
-                                        @click="onTableDataRefresh"/>
-                                <!-- 修改按钮 -->
-                                <Button v-if="miniShow" icon="pi pi-bars" raised rounded
-                                        @click="switchedAndSelectedToggle"/>
+                                <div v-if="miniShow" class="flex flex-row gap-3">
+                                    <!-- 刷新按钮 -->
+                                    <Button icon="pi pi-refresh" raised rounded
+                                            @click="onTableDataRefresh"/>
+                                    <!-- 修改按钮 -->
+                                    <Button icon="pi pi-bars" raised rounded
+                                            @click="switchedAndSelectedToggle"/>
+                                    <Button icon="pi pi-plus" raised rounded
+                                            @click="updateOrAddRecord({})"/>
+                                    <slot name="headerButton"></slot>
+                                </div>
                                 <Button icon="pi pi-upload" raised rounded
                                         @click="exportCSV"/>
                             </div>

@@ -73,7 +73,7 @@ const registerAccount = () => {
 
     request({
         method: 'POST',
-        url: '/auth/accountRegister',
+        url: '/auth/register',
         params: {
             usePhone: usePhone.value,
             verifyCode: verifyCode.value,

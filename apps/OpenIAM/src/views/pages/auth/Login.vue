@@ -8,6 +8,7 @@ import router from '@/service/router';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
 import { AxiosResponse } from 'axios';
+import { sha256 } from "hash.js";
 
 const toast = useToast();
 
@@ -60,7 +61,7 @@ const login = () => {
         params: {
             username: openId.value,
             // pwd: btoa(sha256().update(password.value).digest('hex'))
-            password: password.value
+            password: btoa(sha256().update(password.value).digest('hex'))
         }
     }).then((res:AxiosResponse) => {
         toast.add(responseToastConfig(res));

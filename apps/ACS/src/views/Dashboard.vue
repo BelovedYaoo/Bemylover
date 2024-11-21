@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import LinearCurriculum from '@/views/control/LinearCurriculum.vue';
+</script>
 
 <template>
     <div class="grid">
@@ -67,4 +69,5 @@
             </div>
         </div>
     </div>
+    <LinearCurriculum/>
 </template>

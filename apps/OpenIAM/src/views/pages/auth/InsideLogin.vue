@@ -49,7 +49,7 @@ const login = () => {
     }
     request({
         method: 'POST',
-        url: '/auth/accountLogin',
+        url: '/auth/login',
         data: {
             openId: openId.value,
             password: btoa(sha256().update(password.value).digest('hex'))

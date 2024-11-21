@@ -14,6 +14,15 @@ export interface BaseFiled {
 }
 
 /**
+ * 多租户基础字段
+ * @author BelovedYaoo
+ * @version 1.0
+ */
+export interface BaseTenantFiled extends BaseFiled{
+    tenantId?: string;
+}
+
+/**
  * 菜单项
  * @author BelovedYaoo
  * @version 1.0

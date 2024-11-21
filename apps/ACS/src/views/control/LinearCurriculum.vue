@@ -7,7 +7,26 @@ import request from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from '@/service/globalQuote';
 import { useToast } from 'primevue/usetoast';
-import { Account } from '@/typing/types/type';
+import { BaseTenantFiled } from 'agility-core/src/types/base';
+
+interface LinearCurriculum extends BaseTenantFiled {
+    courseName: string;
+    courseVenue: number;
+    courseType: string;
+    curriculumPeriod: string;
+    curriculumWeek: string;
+    curriculumSection: string;
+}
+
+// 字段列表
+const filedList = ref<Array<ColumnProps>>([
+    {field: 'courseName', header: '课程名称', style: 'width:20%;min-width:10rem;'},
+    {field: 'courseVenue', header: '上课地点', style: 'width:20%;min-width:10rem;'},
+    {field: 'courseType', header: '课程类型', style: 'width:20%;min-width:10rem;'},
+    {field: 'curriculumPeriod', header: '课程周期', style: 'width:10%;min-width:7rem;'},
+    {field: 'curriculumWeek', header: '课程星期', style: 'width:10%;min-width:7rem;'},
+    {field: 'curriculumSection', header: '课程节次', style: 'width:10%;min-width:7rem;'},
+]);
 
 const toast = useToast();
 
@@ -16,20 +35,20 @@ onBeforeMount(() => {
 });
 
 // 数据初始化
-const tableData = ref<Account[]>([]);
+const tableData = ref<LinearCurriculum[]>([]);
 const dataInit = () => {
     request({
-        url: '/acc/queryAll',
+        url: '/linearCurriculum/queryAll',
         method: 'GET'
     }).then((response: AxiosResponse) => {
-        tableData.value = response.data.data as Array<Account>;
+        tableData.value = response.data.data as Array<LinearCurriculum>;
     });
 };
 
 // 删除逻辑
-const onRowDelete = (records: Account[]) => {
+const onRowDelete = (records: LinearCurriculum[]) => {
     request({
-        url: '/acc/delete',
+        url: '/linearCurriculum/delete',
         method: 'POST',
         data: records.map(r => r.baseId)
     }).then((response: AxiosResponse) => {
@@ -40,9 +59,9 @@ const onRowDelete = (records: Account[]) => {
 
 // 行重新排序事件
 const onRowReorder = (event: DataTableRowReorderEvent) => {
-    const { dragIndex, dropIndex } = event;
+    const {dragIndex, dropIndex} = event;
     request({
-        url: '/acc/reorder',
+        url: '/linearCurriculum/reorder',
         method: 'POST',
         params: {
             leftTarget: tableData.value[dragIndex].orderNum,
@@ -60,9 +79,9 @@ const onTableDataRefresh = () => {
 };
 
 // 顺序交换逻辑
-const onOrderSwap = (swapRecords: Account[]) => {
+const onOrderSwap = (swapRecords: LinearCurriculum[]) => {
     request({
-        url: '/acc/orderSwap',
+        url: '/linearCurriculum/orderSwap',
         method: 'POST',
         params: {
             leftTargetBaseId: swapRecords[0].baseId,
@@ -76,32 +95,24 @@ const onOrderSwap = (swapRecords: Account[]) => {
     });
 };
 
-// 修改逻辑
-const showModifyDialog = ref(false);
-const modifyAccountRecord = ref<Account>({});
-const onRowModify = (modifyRecord: Account) => {
-    modifyAccountRecord.value = modifyRecord;
-    showModifyDialog.value = (modifyAccountRecord.value !== undefined);
+// 修改或新增逻辑
+const showInfoDialog = ref(false);
+const recordInfo = ref<LinearCurriculum>({});
+const onRowUpdateOrAdd = (record: LinearCurriculum) => {
+    recordInfo.value = record;
+    showInfoDialog.value = true;
 };
-const saveModify = () => {
+const updateOrAdd = () => {
     request({
-        url: '/acc/update',
+        url: `/linearCurriculum/${recordInfo.value?.baseId?'update':'add'}`,
         method: 'POST',
-        data: modifyAccountRecord.value
+        data: recordInfo.value
     }).then((response: AxiosResponse) => {
         toast.add(responseToastConfig(response));
         dataInit();
-        showModifyDialog.value = false;
+        showInfoDialog.value = false;
     });
 };
-
-// 字段列表
-const filedList = ref<Array<ColumnProps>>([
-    { field: 'openId', header: 'OpenID', style: 'width:20%;min-width:10rem;' },
-    { field: 'phone', header: '手机号', style: 'width:20%;min-width:10rem;' },
-    { field: 'email', header: '邮箱', style: 'width:20%;min-width:10rem;' },
-    { field: 'nickname', header: '昵称', style: 'width:10%;min-width:7rem;' },
-]);
 
 </script>
 
@@ -109,11 +120,11 @@ const filedList = ref<Array<ColumnProps>>([
     <div class="card">
         <CustomDataTable :on-order-swap="onOrderSwap"
                          :on-row-delete="onRowDelete"
-                         :on-row-modify="onRowModify"
+                         :on-row-update-or-add="onRowUpdateOrAdd"
                          :on-row-reorder="onRowReorder"
                          :on-table-data-refresh="onTableDataRefresh"
                          :table-data="tableData"
-                         table-name="账户">
+                         table-name="线性课程表">
             <template v-slot:column>
                 <Column v-for="filed in filedList"
                         :key="filed.field"
@@ -125,34 +136,54 @@ const filedList = ref<Array<ColumnProps>>([
             </template>
         </CustomDataTable>
 
-        <Dialog v-model:visible="showModifyDialog" modal class="p-fluid w-3">
+        <Dialog v-model:visible="showInfoDialog" modal class="p-fluid max-w-30rem min-w-min">
             <template #header>
-                <div class="p-dialog-title">修改数据</div>
+                <div class="p-dialog-title">{{ recordInfo?.baseId ? '修改' : '新增' }}数据</div>
             </template>
             <div class="field">
-                <label>账号名称</label>
+                <label>课程名称</label>
                 <InputText
-                    id="nickname"
-                    v-model="modifyAccountRecord.nickname"
-                    integeronly
+                    id="courseName"
+                    v-model="recordInfo.courseName"
                 />
             </div>
 
             <div class="formgrid grid">
                 <div class="field col">
-                    <label>手机号</label>
+                    <label>上课地点</label>
                     <InputText
-                        id="phone"
-                        v-model="modifyAccountRecord.phone"
-                        integeronly
+                        id="courseVenue"
+                        v-model="recordInfo.courseVenue"
                     />
                 </div>
                 <div class="field col">
-                    <label>邮箱</label>
+                    <label>课程类型</label>
                     <InputText
-                        id="email"
-                        v-model="modifyAccountRecord.email"
-                        integeronly
+                        id="courseType"
+                        v-model="recordInfo.courseType"
+                    />
+                </div>
+            </div>
+            <div class="formgrid grid">
+                <div class="field col">
+                    <label>课程周期</label>
+                    <InputText
+                        id="schedulePeriod"
+                        v-model="recordInfo.curriculumPeriod"
+                    />
+                </div>
+                <div class="field col">
+                    <label>课程星期</label>
+                    <InputText
+                        id="scheduleWeek"
+                        v-model="recordInfo.curriculumWeek"
+                    />
+                </div>
+                <div class="field col">
+                    <label>课程节次</label>
+                    <InputText
+                        id="scheduleSection"
+                        v-model="recordInfo.curriculumSection"
                     />
                 </div>
             </div>
@@ -163,13 +194,13 @@ const filedList = ref<Array<ColumnProps>>([
                             class="p-button-text"
                             icon="pi pi-times"
                             label="返回"
-                            @click="showModifyDialog = false"
+                            @click="showInfoDialog = false"
                         />
                         <Button
                             class="p-button-text m-0"
                             icon="pi pi-check"
                             label="保存修改"
-                            @click="saveModify"
+                            @click="updateOrAdd"
                         />
                     </div>
                 </div>
