@@ -8,6 +8,7 @@ import { AxiosResponse } from 'axios';
 import { responseToastConfig } from '@/service/globalQuote';
 import { useToast } from 'primevue/usetoast';
 import { Account } from '@/typing/types/type';
+import { sha256 } from 'hash.js';
 
 const toast = useToast();
 
@@ -40,7 +41,7 @@ const onRowDelete = (records: Account[]) => {
 
 // 行重新排序事件
 const onRowReorder = (event: DataTableRowReorderEvent) => {
-    const { dragIndex, dropIndex } = event;
+    const {dragIndex, dropIndex} = event;
     request({
         url: '/acc/reorder',
         method: 'POST',
@@ -76,31 +77,32 @@ const onOrderSwap = (swapRecords: Account[]) => {
     });
 };
 
-// 修改逻辑
-const showModifyDialog = ref(false);
-const modifyAccountRecord = ref<Account>({});
-const onRowModify = (modifyRecord: Account) => {
-    modifyAccountRecord.value = modifyRecord;
-    showModifyDialog.value = (modifyAccountRecord.value !== undefined);
+// 修改或新增逻辑
+const showInfoDialog = ref(false);
+const recordInfo = ref<Account>({});
+const onRowUpdateOrAdd = (record: Account) => {
+    recordInfo.value = record;
+    showInfoDialog.value = true;
 };
-const saveModify = () => {
+const updateOrAdd = () => {
+    recordInfo.value.password = btoa(sha256().update(recordInfo.value.password).digest('hex'));
     request({
-        url: '/acc/update',
+        url: `/acc/${recordInfo.value?.baseId ? 'update' : 'add'}`,
         method: 'POST',
-        data: modifyAccountRecord.value
+        data: recordInfo.value
     }).then((response: AxiosResponse) => {
         toast.add(responseToastConfig(response));
         dataInit();
-        showModifyDialog.value = false;
+        showInfoDialog.value = false;
     });
 };
 
 // 字段列表
 const filedList = ref<Array<ColumnProps>>([
-    { field: 'openId', header: 'OpenID', style: 'width:20%;min-width:10rem;' },
-    { field: 'phone', header: '手机号', style: 'width:20%;min-width:10rem;' },
-    { field: 'email', header: '邮箱', style: 'width:20%;min-width:10rem;' },
-    { field: 'nickname', header: '昵称', style: 'width:10%;min-width:7rem;' },
+    {field: 'openId', header: 'OpenID', style: 'width:20%;min-width:10rem;'},
+    {field: 'phone', header: '手机号', style: 'width:20%;min-width:10rem;'},
+    {field: 'email', header: '邮箱', style: 'width:20%;min-width:10rem;'},
+    {field: 'nickname', header: '昵称', style: 'width:10%;min-width:7rem;'},
 ]);
 
 </script>
@@ -109,8 +111,8 @@ const filedList = ref<Array<ColumnProps>>([
     <div class="card">
         <CustomDataTable :on-order-swap="onOrderSwap"
                          :on-row-delete="onRowDelete"
-                         :on-row-modify="onRowModify"
                          :on-row-reorder="onRowReorder"
+                         :on-row-update-or-add="onRowUpdateOrAdd"
                          :on-table-data-refresh="onTableDataRefresh"
                          :table-data="tableData"
                          table-name="账户">
@@ -125,17 +127,49 @@ const filedList = ref<Array<ColumnProps>>([
             </template>
         </CustomDataTable>
 
-        <Dialog v-model:visible="showModifyDialog" modal class="p-fluid w-3">
+        <Dialog v-model:visible="showInfoDialog" class="p-fluid w-3" modal>
             <template #header>
-                <div class="p-dialog-title">修改数据</div>
+                <div class="p-dialog-title">{{ recordInfo?.baseId ? '修改' : '新增' }}数据</div>
             </template>
             <div class="field">
-                <label>账号名称</label>
+                <label>昵称</label>
                 <InputText
                     id="nickname"
-                    v-model="modifyAccountRecord.nickname"
+                    v-model="recordInfo.nickname"
                     integeronly
                 />
+            </div>
+            <div class="formgrid grid">
+                <div class="field col">
+                    <label>Open ID</label>
+                    <InputText
+                        id="phone"
+                        v-model="recordInfo.openId"
+                        integeronly
+                    />
+                </div>
+                <div class="field col">
+                    <label class="text-600 font-bold ml-1" for="password">密码</label>
+                    <Password id="password" v-model="recordInfo.password" :toggleMask="true"
+                              class="w-full" inputClass="w-full font-bold" mediumLabel="适中"
+                              prompt-label="输入您的密码" strongLabel="安全" weakLabel="过于简单">
+                        <template #header>
+                            <label class="text-600 font-bold pb-2">我们不会存储您的明文密码</label>
+                            <br/>
+                            <label class="text-600 font-bold">您的密码将在本地经过加密与二次编码后上传</label>
+                        </template>
+                        <template #footer>
+                            <Divider class="my-2"/>
+                            <p class="mb-0">密码建议</p>
+                            <ul class="pl-3 ml-2 mt-2 mb-0" style="line-height: 1.5">
+                                <li>至少一个小写字母</li>
+                                <li>至少一个大写字母</li>
+                                <li>至少一个数字</li>
+                                <li>最小8个字符</li>
+                            </ul>
+                        </template>
+                    </Password>
+                </div>
             </div>
 
             <div class="formgrid grid">
@@ -143,7 +177,7 @@ const filedList = ref<Array<ColumnProps>>([
                     <label>手机号</label>
                     <InputText
                         id="phone"
-                        v-model="modifyAccountRecord.phone"
+                        v-model="recordInfo.phone"
                         integeronly
                     />
                 </div>
@@ -151,7 +185,7 @@ const filedList = ref<Array<ColumnProps>>([
                     <label>邮箱</label>
                     <InputText
                         id="email"
-                        v-model="modifyAccountRecord.email"
+                        v-model="recordInfo.email"
                         integeronly
                     />
                 </div>
@@ -163,13 +197,13 @@ const filedList = ref<Array<ColumnProps>>([
                             class="p-button-text"
                             icon="pi pi-times"
                             label="返回"
-                            @click="showModifyDialog = false"
+                            @click="showInfoDialog = false"
                         />
                         <Button
                             class="p-button-text m-0"
                             icon="pi pi-check"
                             label="保存修改"
-                            @click="saveModify"
+                            @click="updateOrAdd"
                         />
                     </div>
                 </div>

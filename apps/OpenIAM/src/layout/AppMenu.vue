@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref } from 'vue';
 
 import AppMenuItem from 'agility-core/src/layout/AppMenuItem.vue';
@@ -13,70 +13,18 @@ const model = ref([
         ]
     },
     {
-        label: '数据管理',
+        label: '控制与管理',
         items: [
             {
                 label: '用户管理',
-                icon: 'pi pi-fw pi-user',
-                items: [
-                    {
-                        label: '用户',
-                        icon: 'pi pi-fw pi-users',
-                        to: '/control/userControl'
-                    },
-                    {
-                        label: '用户组',
-                        icon: 'pi pi-fw pi-users',
-                        to: '/control/userControl'
-                    }
-                ]
+                icon: 'pi pi-fw pi-users',
+                to: '/control/userControl'
             },
             {
                 label: '应用管理',
                 mdi: 'mdi:table',
-                style: {width:'18px',height:'17px'},
-                items: [
-                    {
-                        label: '应用',
-                        mdi: 'mdi:table',
-                        style: {width:'18px',height:'17px'},
-                        to: '/control/userControl'
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        label: '权限控制',
-        items: [
-            {
-                label: '角色控制',
-                icon: 'pi pi-fw pi-user',
-                items: [
-                    {
-                        label: '用户',
-                        icon: 'pi pi-fw pi-users',
-                        to: '/control/userControl'
-                    },
-                    {
-                        label: '用户组',
-                        icon: 'pi pi-fw pi-users',
-                        to: '/control/userControl'
-                    }
-                ]
-            },
-            {
-                label: '应用管理',
-                mdi: 'mdi:table',
-                style: {width:'18px',height:'17px'},
-                items: [
-                    {
-                        label: '应用',
-                        mdi: 'mdi:table',
-                        style: {width:'18px',height:'17px'},
-                        to: '/control/userControl'
-                    }
-                ]
+                style: {width: '18px', height: '17px'},
+                to: '/control/appControl'
             }
         ]
     },
