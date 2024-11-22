@@ -13,9 +13,9 @@ interface AuthorizedApplication extends BaseFiled {
     clientName: string;
     clientId: string;
     clientSecret: string;
-    contractScopes: string;
-    allowRedirectUris: string;
-    allowGrantTypes: string;
+    contractScopes: Array<string>;
+    allowRedirectUris: Array<string>;
+    allowGrantTypes: Array<string>;
     isNewRefresh: boolean;
     accessTokenTimeout: number;
     refreshTokenTimeout: number;
@@ -119,6 +119,13 @@ const updateOrAdd = () => {
     });
 };
 
+const allAuthGrantType = ref([
+    {label: '授权码模式', value: 'authorization_code'},
+    {label: '密码模式', value: 'password'},
+    {label: '客户端模式', value: 'client_credentials'},
+    {label: '简化模式', value: 'implicit'},
+    {label: '刷新令牌模式', value: 'refresh_token'}
+]);
 </script>
 
 <template>
@@ -141,7 +148,7 @@ const updateOrAdd = () => {
             </template>
         </CustomDataTable>
 
-        <Dialog v-model:visible="showInfoDialog" class="p-fluid min-w-min" style="max-width: 50rem" modal>
+        <Dialog v-model:visible="showInfoDialog" class="p-fluid min-w-min" modal style="max-width: 50rem">
             <template #header>
                 <div class="p-dialog-title">{{ recordInfo?.baseId ? '修改' : '新增' }}数据</div>
             </template>
@@ -175,38 +182,48 @@ const updateOrAdd = () => {
                     />
                 </div>
                 <div class="field col-12 sm:col-6">
+                    <label>刷新 Refresh-Token</label>
+                    <ToggleButton id="isNewRefresh" v-model="recordInfo.isNewRefresh"/>
+                </div>
+                <div class="field col-12 sm:col-6">
                     <label>授权回调</label>
                     <InputText
                         id="allowRedirectUris"
                         v-model="recordInfo.allowRedirectUris"
                     />
                 </div>
-                <div class="field col-12 sm:col-6 xl:col-4">
-                    <label>刷新 Refresh-Token</label>
-                    <ToggleButton id="isNewRefresh" v-model="recordInfo.isNewRefresh" />
+                <div class="field col-12">
+                    <label>授权类型</label>
+                    <div class="flex flex-row gap-3">
+                        <div v-for="authGrantType of allAuthGrantType" :key="authGrantType.key" class="flex align-items-center">
+                            <Checkbox v-model="recordInfo.allowGrantTypes" :inputId="authGrantType.key" :value="authGrantType.value"
+                                      :name="authGrantType.value"/>
+                            <label class="pl-2 align-self-baseline">{{ authGrantType.label }}</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="field col-12 sm:col-6 xl:col-4">
+                <div class="field col-12 sm:col-6">
                     <label>Access-Token-Timeout</label>
                     <InputText
                         id="accessTokenTimeout"
                         v-model="recordInfo.accessTokenTimeout"
                     />
                 </div>
-                <div class="field col-12 sm:col-6 xl:col-4">
+                <div class="field col-12 sm:col-6">
                     <label>Refresh-Token-Timeout</label>
                     <InputText
                         id="refreshTokenTimeout"
                         v-model="recordInfo.refreshTokenTimeout"
                     />
                 </div>
-                <div class="field col-12 sm:col-6 xl:col-4">
+                <div class="field col-12 sm:col-6">
                     <label>Client-Token-Timeout</label>
                     <InputText
                         id="clientTokenTimeout"
                         v-model="recordInfo.clientTokenTimeout"
                     />
                 </div>
-                <div class="field col-12 sm:col-6 xl:col-4">
+                <div class="field col-12 sm:col-6">
                     <label>Lower-Client-Token-Timeout</label>
                     <InputText
                         id="lowerClientTokenTimeout"
