@@ -47,11 +47,6 @@ const router = createRouter({
             path: '/auth',
             children: [
                 {
-                    path: 'insideLogin',
-                    name: 'insideLogin',
-                    component: () => import('@/views/pages/auth/InsideLogin.vue')
-                },
-                {
                     path: 'login',
                     name: 'login',
                     component: () => import('@/views/pages/auth/Login.vue')
