@@ -3,8 +3,10 @@ import AppLayout from 'agility-core/src/layout/AppLayout.vue';
 import AppTopbar from '@/layout/AppTopbar.vue';
 import AppSidebar from '@/layout/AppSidebar.vue';
 import AppFooter from '@/layout/AppFooter.vue';
-import { globalConfig } from './globalQuote.ts';
+import { getParameterByName,globalConfig } from './globalQuote.ts';
 import cookie from 'js-cookie';
+import { AxiosResponse } from 'axios';
+import request from '@/service/request';
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -31,6 +33,11 @@ const router = createRouter({
                             path: 'userControl',
                             name: 'userControl',
                             component: () => import('@/views/control/UserControl.vue')
+                        },
+                        {
+                            path: 'appControl',
+                            name: 'appControl',
+                            component: () => import('@/views/control/AppControl.vue')
                         },
                     ]
                 },
@@ -86,16 +93,33 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-    // 如果访问的是登录页、注册页、忘记密码页，直接放行
-    // if (to.name === 'login' || to.name === 'register' || to.name === 'forget') {
-    //     return next();
-    // }
-    //
-    // // 未登录用户重定向到登录页
-    // const tokenValue = cookie.get(globalConfig.appTokenName);
-    // if (tokenValue === '' || tokenValue === null || tokenValue === undefined) {
-    //     return next({ name: 'login' });
-    // }
+    // OpenAuth 服务路由放行
+    if (to.path.indexOf('/auth/') !== -1) {
+        return next();
+    }
+    // 判断是否携带授权码
+    const code = getParameterByName('code');
+    const tokenValue = cookie.get(globalConfig.appTokenName);
+    if ((tokenValue === '' || tokenValue === null || tokenValue === undefined) && (code === '' || code === null)) {
+        alert('未登录!');
+        next({ name: 'login',query: { response_type: 'code',client_id: '1000',redirect_uri: 'http://openiam.top:9036/'} });
+        // return window.location.href = 'http://openiam.top:9036/#';
+    } else if (code !== '' && code !== null && code !== undefined) {
+        request({
+            method: 'GET',
+            url: '/openAuth/codeLogin',
+            params: {
+                code: code,
+            }
+        }).then((res: AxiosResponse) => {
+            if (res.data.code !== 200 && (tokenValue === '' || tokenValue === null || tokenValue === undefined)) {
+                alert('未登录');
+                return window.location.href = 'http://openiam.top:9036/#/auth/login?response_type=code&client_id=1000&redirect_uri=http://openiam.top:9036/';
+            }
+            console.log('codeLogin:'+res.data.data);
+        });
+        window.location.href = 'http://openiam.top:9036/#/';
+    }
 
     next();
 });
