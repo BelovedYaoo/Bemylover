@@ -3,7 +3,7 @@ import AppLayout from 'agility-core/src/layout/AppLayout.vue';
 import AppTopbar from '@/layout/AppTopbar.vue';
 import AppSidebar from '@/layout/AppSidebar.vue';
 import AppFooter from '@/layout/AppFooter.vue';
-import { getParameterByName,globalConfig } from './globalQuote.ts';
+import { getParameterByName, globalConfig } from './globalQuote.ts';
 import cookie from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import request from '@/service/request';
@@ -89,7 +89,7 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach((to, from, next) => {
     // OpenAuth 服务路由放行
-    if (to.path.indexOf('/auth/') !== -1) {
+    if (to.name === 'login') {
         return next();
     }
     // 判断是否携带授权码
@@ -97,8 +97,10 @@ router.beforeEach((to, from, next) => {
     const tokenValue = cookie.get(globalConfig.appTokenName);
     if ((tokenValue === '' || tokenValue === null || tokenValue === undefined) && (code === '' || code === null)) {
         alert('未登录!');
-        next({ name: 'login',query: { response_type: 'code',client_id: '1000',redirect_uri: 'http://openiam.top:9036/'} });
-        // return window.location.href = 'http://openiam.top:9036/#';
+        next({
+            name: 'login',
+            query: {response_type: 'code', client_id: globalConfig.clientId, redirect_uri: globalConfig.indexUrl}
+        });
     } else if (code !== '' && code !== null && code !== undefined) {
         request({
             method: 'GET',
@@ -109,13 +111,19 @@ router.beforeEach((to, from, next) => {
         }).then((res: AxiosResponse) => {
             if (res.data.code !== 200 && (tokenValue === '' || tokenValue === null || tokenValue === undefined)) {
                 alert('未登录');
-                return window.location.href = 'http://openiam.top:9036/#/auth/login?response_type=code&client_id=1000&redirect_uri=http://openiam.top:9036/';
+                next({
+                    name: 'login',
+                    query: {
+                        response_type: 'code',
+                        client_id: globalConfig.clientId,
+                        redirect_uri: globalConfig.indexUrl
+                    }
+                });
             }
-            console.log('codeLogin:'+res.data.data);
+        }).finally(() => {
+            window.location.href = globalConfig.indexUrl;
         });
-        window.location.href = 'http://openiam.top:9036/#/';
     }
-
     next();
 });
 

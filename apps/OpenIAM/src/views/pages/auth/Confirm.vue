@@ -12,7 +12,7 @@ const doConfirm = () => {
         method: 'POST',
         url: '/oauth2/doConfirm',
         params: {
-            client_id: '1001',
+            client_id: getParameterByName('clientId'),
             scope: getParameterByName('scope'),
             // 以下四个参数必须一起出现
             build_redirect_uri: true,

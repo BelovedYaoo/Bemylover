@@ -73,7 +73,7 @@ router.beforeEach((to, from, next) => {
     const tokenValue = cookie.get(globalConfig.appTokenName);
     if ((tokenValue === '' || tokenValue === null || tokenValue === undefined) && (code === '' || code === null)) {
         alert('未登录!');
-        return window.location.href = 'http://openiam.top:9036/#/auth/login?response_type=code&client_id=1001&redirect_uri=http://acs.top:132/';
+        return window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
     } else if (code !== '' && code !== null && code !== undefined) {
         request({
             method: 'GET',
@@ -84,13 +84,12 @@ router.beforeEach((to, from, next) => {
         }).then((res: AxiosResponse) => {
             if (res.data.code !== 200 && (tokenValue === '' || tokenValue === null || tokenValue === undefined)) {
                 alert('未登录');
-                return window.location.href = 'http://openiam.top:9036/#/auth/login?response_type=code&client_id=1001&redirect_uri=http://acs.top:132/';
+                return window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
             }
-            console.log('codeLogin:'+res.data.data);
-            window.location.href = 'http://acs.top:132/#/';
+        }).finally(() => {
+            window.location.href = globalConfig.indexUrl;
         });
     }
-
     next();
 });
 

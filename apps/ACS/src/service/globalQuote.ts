@@ -41,6 +41,14 @@ export const getParameterByName = (name, url = window.location.href) => {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
 
+interface AppConfig {
+    appName: string;
+    appTokenName: string;
+    openAuthServerUrl: string;
+    clientId: string;
+    indexUrl: string;
+}
+
 /**
  * 全局配置
  */
@@ -49,14 +57,10 @@ export const globalConfig: AppConfig = {
     appName: 'ACS Server',
     // Token名称
     appTokenName: 'acsToken',
-    // 查询所有URL
-    queryAllUrl: '/queryAll',
-    // 更新URL
-    updateUrl: '/update',
-    // 删除URL
-    deleteUrl: '/delete',
-    // 新增URL
-    addUrl: '/add',
-    // 重新排序URL
-    reorderUrl: '/reorder',
+    // OpenAuth 认证服务URL
+    openAuthServerUrl: 'http://openiam.top:9036/#/auth/login',
+    // OpenAuth 应用端ID
+    clientId: '1001',
+    // 主页URL
+    indexUrl: 'http://acs.top:132/#/',
 };
