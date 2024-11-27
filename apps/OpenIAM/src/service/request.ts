@@ -36,19 +36,27 @@ service.interceptors.response.use(
     (res) => {
         // 获取后端返回的状态码
         const code = res.data.code;
-        // 会话失效
-        if (code === 901) {
-            // 清除token
-            // cookie.remove(globalConfig.appTokenName);
-            // 页面跳转
-            router.push({
-                path: '/auth/confirm',
-                query: {
-                    clientId: res.data.data.clientId,
-                    scope: res.data.data.scope,
-                    redirect_uri: getParameterByName('redirect_uri')
-                }
-            });
+        switch (code) {
+            // Token 失效
+            case 700:
+            // 未登录
+            case 900:
+                // 清除token
+                cookie.remove(globalConfig.appTokenName);
+                // 页面跳转
+                router.push({path: '/'});
+                break;
+            // 需要授权
+            case 901:
+                router.push({
+                    path: '/auth/confirm',
+                    query: {
+                        clientId: res.data.data.clientId,
+                        scope: res.data.data.scope,
+                        redirect_uri: getParameterByName('redirect_uri')
+                    }
+                });
+                break;
         }
         return res;
     },

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import cookie from 'js-cookie';
 import router from './router';
-import { globalConfig } from './globalQuote.ts';
+import { getParameterByName,globalConfig } from './globalQuote.ts';
 
 export const url: string = 'http://acs.top:1320';
 // export const url: string = 'http://192.168.1.100:1320';
@@ -36,13 +36,27 @@ service.interceptors.response.use(
     (res) => {
         // 获取后端返回的状态码
         const code = res.data.code;
-        // 会话失效
-        if (code === 900) {
-            alert('会话失效');
-            // 清除token
-            cookie.remove(globalConfig.appTokenName);
-            // 页面跳转
-            window.location.href = 'http://openiam.top:9036/#/auth/login?response_type=code&client_id=1001&redirect_uri=http://acs.top:132/';
+        switch (code) {
+            // Token 失效
+            case 700:
+            // 未登录
+            case 900:
+                // 清除token
+                cookie.remove(globalConfig.appTokenName);
+                // 页面跳转
+                router.push({path: '/'});
+                break;
+            // 需要授权
+            case 901:
+                router.push({
+                    path: '/auth/confirm',
+                    query: {
+                        clientId: res.data.data.clientId,
+                        scope: res.data.data.scope,
+                        redirect_uri: getParameterByName('redirect_uri')
+                    }
+                });
+                break;
         }
         return res;
     },
