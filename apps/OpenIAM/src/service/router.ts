@@ -7,6 +7,7 @@ import { getParameterByName, globalConfig } from './globalQuote.ts';
 import cookie from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import request from '@/service/request';
+import { ref } from 'vue';
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -86,10 +87,19 @@ const router = createRouter({
     ]
 });
 
+const whiteList = ref([
+    'login',
+    'register',
+    'confirm',
+    'notFound',
+    'notFound',
+    'error'
+]);
+
 // 路由守卫
 router.beforeEach((to, from, next) => {
-    // OpenAuth 服务路由放行
-    if (to.name === 'login') {
+    // 白名单路由放行
+    if (whiteList.value.includes(to.name)) {
         return next();
     }
     // 判断是否携带授权码
@@ -119,6 +129,9 @@ router.beforeEach((to, from, next) => {
                         redirect_uri: globalConfig.indexUrl
                     }
                 });
+            } else if (res.data.code === 200 && res.data.data.tokenValue !== null) {
+                // token存入cookie
+                cookie.set(globalConfig.appTokenName, res.data.data.tokenValue);
             }
         }).finally(() => {
             window.location.href = globalConfig.indexUrl;

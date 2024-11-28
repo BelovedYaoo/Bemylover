@@ -7,7 +7,7 @@ import request from '@/service/request';
 import router from '@/service/router';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { sha256 } from "hash.js";
 
 const toast = useToast();
@@ -57,7 +57,7 @@ const login = () => {
     }
     request({
         method: 'POST',
-        url: '/oauth2/doLogin',
+        url: 'http://openiam.top:8091/oauth2/doLogin',
         params: {
             username: openId.value,
             // pwd: btoa(sha256().update(password.value).digest('hex'))
@@ -67,7 +67,7 @@ const login = () => {
         toast.add(responseToastConfig(res));
         if (res.data.code === 200 && res.data.data.tokenValue !== null) {
             // token存入cookie
-            cookie.set(globalConfig.appTokenName, res.data.data.tokenValue);
+            cookie.set('openToken', res.data.data.tokenValue);
             // 页面跳转
             code();
         }
@@ -76,9 +76,14 @@ const login = () => {
 
 const code = () => {
     alert('code');
-    request({
+    axios.request({
+        headers: {
+            'Content-Type': 'application/json',
+            'token': cookie.get('openToken')
+        },
+        withCredentials: true,
         method: 'POST',
-        url: 'http://openiam.top:8090/oauth2/authorize',
+        url: 'http://openiam.top:8091/oauth2/authorize',
         params: {
             response_type: getParameterByName('response_type'),
             client_id: getParameterByName('client_id'),
@@ -87,8 +92,17 @@ const code = () => {
         },
     }).then((res: AxiosResponse) => {
         console.log(res.data);
-        if (res.data.code !== 901) {
+        if (res.data.code === 200) {
             window.location.href = res.data.data;
+        } else if (res.data.code === 901) {
+            router.push({
+                    path: '/auth/confirm',
+                    query: {
+                        clientId: res.data.data.clientId,
+                        scope: res.data.data.scope,
+                        redirect_uri: getParameterByName('redirect_uri')
+                    }
+                });
         }
     });
 };

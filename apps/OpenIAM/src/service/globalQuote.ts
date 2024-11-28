@@ -55,7 +55,7 @@ export const globalConfig: AppConfig = {
     // 应用名称
     appName: 'OpenIAM',
     // Token名称
-    appTokenName: 'openToken',
+    appTokenName: 'iamToken',
     // OpenAuth 认证服务URL
     openAuthServerUrl: 'http://openiam.top:9036/#/auth/login',
     // OpenAuth 应用端ID

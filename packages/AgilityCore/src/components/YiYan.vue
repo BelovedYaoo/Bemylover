@@ -36,7 +36,7 @@ const clearTimer = () => {
 // 一言渐变更新
 let updateYiyan = () => {
     // 获取类名含有yiyan的元素
-    const span = document.querySelector('.yiyan');
+    const span = document.querySelector('.yiyan') as HTMLBodyElement;
     // 获取一言
     axios
         .request({
@@ -86,7 +86,7 @@ const switchApi = () => {
 
 // Api可用性监听
 watch(apiAvailability, (newValue) => {
-    if (newValue === 0) {
+    if (newValue <= 0) {
         console.warn('API 可用性已降至 0');
         // 中断一言更新函数
         updateYiyan = null;
@@ -95,7 +95,7 @@ watch(apiAvailability, (newValue) => {
         // 固定一言显示
         yiyan.value = '永远都有更好，但眼下便是最好';
         // 获取类名含有yiyan的元素
-        const span = document.querySelector('.yiyan');
+        const span = document.querySelector('.yiyan') as HTMLBodyElement;
         // 为yiyan元素添加渐显效果
         span.style.opacity = '1';
     }

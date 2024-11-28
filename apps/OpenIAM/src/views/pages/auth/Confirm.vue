@@ -1,16 +1,21 @@
 <script lang="ts" setup>
 import { useToast } from 'primevue/usetoast';
 import { getParameterByName, globalConfig } from '@/service/globalQuote';
-import request from '@/service/request';
 import LogoSvg from '@/components/LogoSvg.vue';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import cookie from 'js-cookie';
 
 const toast = useToast();
 
 const doConfirm = () => {
-    request({
+    axios.request({
+        headers: {
+            'Content-Type': 'application/json',
+            'token': cookie.get('openToken')
+        },
+        withCredentials: true,
         method: 'POST',
-        url: '/oauth2/doConfirm',
+        url: 'http://openiam.top:8091/oauth2/doConfirm',
         params: {
             client_id: getParameterByName('clientId'),
             scope: getParameterByName('scope'),
