@@ -16,9 +16,13 @@ watch(() => props.dataValue, (newValue) => {
     localDataValue.value = newValue;
 });
 
-const updateDataValue = (value: string) => {
-    localDataValue.value = value;
-    emit('update:dataValue', value);
+const updateDataValue = (event: Event) => {
+    const inputElement = event.target as HTMLInputElement;
+    const newValue = inputElement.value;
+    // 更新 localDataValue
+    localDataValue.value = newValue;
+    // 触发 update:dataValue 事件
+    emit('update:dataValue', newValue);
 };
 </script>
 
@@ -30,9 +34,9 @@ const updateDataValue = (value: string) => {
             :id="props.dataName"
             type="text"
             v-model="localDataValue"
-            @input="updateDataValue.data"
+            @input="updateDataValue"
         />
-        <Password v-else :id="props.dataName" type="text" v-model="localDataValue" @input="updateDataValue.data" toggleMask>
+        <Password v-else :id="props.dataName" type="text" v-model="localDataValue" @input="updateDataValue" toggleMask>
             <template #content>
                 <h6 class="pb-0 mb-0">{{ props.dataDesc }}</h6>
             </template>

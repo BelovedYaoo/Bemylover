@@ -50,11 +50,6 @@ const dataInit = () => {
     });
 };
 
-// 刷新逻辑
-const onTableDataRefresh = () => {
-    dataInit();
-};
-
 const updateDataValue = (name: keyof EnterpriseConfig, value: string) => {
     enterpriseConfigData.value[name] = value;
 };
@@ -78,6 +73,16 @@ const reset = () => {
         console.log(response);
     });
 };
+
+const saveData = () => {
+    request({
+        url: '/enterpriseConfig/update',
+        method: 'POST',
+        data: enterpriseConfigData.value
+    }).then((response: AxiosResponse) => {
+        console.log(response);
+    });
+};
 </script>
 
 <template>
@@ -87,7 +92,7 @@ const reset = () => {
             <div class="card p-fluid">
                 <h5>API配置</h5>
                 <div class="formgrid grid">
-                    <EnterpriseInput :data-value="enterpriseConfigData.tianApiKey" :is-enc="true"
+                    <EnterpriseInput v-model:data-value="enterpriseConfigData.tianApiKey" :is-enc="true"
                                      data-desc="天行数据api密钥(此参数为密钥，请保密)" data-name="tianApiKey"
                                      @update:dataValue="(value) => updateDataValue('tianApiKey', value)"/>
                 </div>
@@ -241,7 +246,7 @@ const reset = () => {
                     class="p-button-success mr-2"
                     icon="pi pi-check"
                     label="确认修改"
-                    @click="console.log(enterpriseConfigData)"
+                    @click="saveData()"
                 />
             </div>
         </div>
