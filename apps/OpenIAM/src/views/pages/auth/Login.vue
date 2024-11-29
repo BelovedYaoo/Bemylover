@@ -42,7 +42,7 @@ const checkRegisterAccountInfo = () => {
 };
 
 onMounted(() => {
-    const tokenValue = cookie.get(globalConfig.appTokenName);
+    const tokenValue = cookie.get('openToken');
     if (tokenValue === '' || tokenValue === null || tokenValue === undefined) {
         return;
     }

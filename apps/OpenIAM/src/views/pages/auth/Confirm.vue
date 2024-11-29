@@ -35,7 +35,8 @@ const doConfirm = () => {
 };
 
 const doDenied = () => {
-
+    cookie.remove('openToken');
+    location.href = getParameterByName('redirect_uri');
 };
 </script>
 
