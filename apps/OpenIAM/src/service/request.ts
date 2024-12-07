@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import cookie from 'js-cookie';
-import router from './router';
-import { getParameterByName, globalConfig } from './globalQuote.ts';
+import router from '@/service/router';
+import { getParameterByName, globalConfig,signOut } from './globalQuote.ts';
 
 export const url: string = 'http://openiam.top:8090';
 // export const url: string = 'http://192.168.1.100:8090';
@@ -41,10 +41,7 @@ service.interceptors.response.use(
             case 700:
             // 未登录
             case 900:
-                // 清除token
-                cookie.remove(globalConfig.appTokenName);
-                // 页面跳转
-                router.push({path: '/'});
+                signOut();
                 break;
             // 需要授权
             case 901:

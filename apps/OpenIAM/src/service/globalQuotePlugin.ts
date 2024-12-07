@@ -1,4 +1,4 @@
-import { addClassById, getParameterByName, globalConfig, responseToastConfig } from './globalQuote';
+import { addClassById, getParameterByName, globalConfig, responseToastConfig, signOut } from './globalQuote';
 import { App } from 'vue';
 
 const globalQuotePlugin = {
@@ -7,6 +7,7 @@ const globalQuotePlugin = {
         app.config.globalProperties.$addClassById = addClassById;
         app.config.globalProperties.$globalConfig = globalConfig;
         app.config.globalProperties.$getParameterByName = getParameterByName;
+        app.config.globalProperties.$signOut = signOut;
     }
 };
 

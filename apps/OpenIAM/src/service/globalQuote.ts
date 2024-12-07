@@ -1,6 +1,8 @@
 import { AxiosResponse } from 'axios';
 import { ToastMessageOptions } from 'primevue/toast';
 import { AppConfig } from '@/service/globalQuote';
+import cookie from 'js-cookie';
+import router from '@/service/router';
 
 /**
  * 将Axios请求响应体转换为PrimeVue的Toast配置
@@ -39,6 +41,13 @@ export const getParameterByName = (name:string, url = window.location.href) => {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+};
+
+export const signOut = () => {
+    // 清除token
+    cookie.remove(globalConfig.appTokenName);
+    // 页面跳转
+    router.push({name: 'login',query: {response_type: 'code', client_id: globalConfig.clientId, redirect_uri: globalConfig.indexUrl}});
 };
 
 interface AppConfig {
