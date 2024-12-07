@@ -7,8 +7,7 @@ import request from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from '@/service/globalQuote';
 import { useToast } from 'primevue/usetoast';
-import { Account } from '@/typing/types/type';
-import { sha256 } from 'hash.js';
+import { Permission } from '@/typing/types/type';
 
 const toast = useToast();
 
@@ -17,20 +16,20 @@ onBeforeMount(() => {
 });
 
 // 数据初始化
-const tableData = ref<Account[]>([]);
+const tableData = ref<Permission[]>([]);
 const dataInit = () => {
     request({
-        url: '/user/queryAll',
+        url: '/permission/queryAll',
         method: 'GET'
     }).then((response: AxiosResponse) => {
-        tableData.value = response.data.data as Array<Account>;
+        tableData.value = response.data.data as Array<Permission>;
     });
 };
 
 // 删除逻辑
-const onRowDelete = (records: Account[]) => {
+const onRowDelete = (records: Permission[]) => {
     request({
-        url: '/user/delete',
+        url: '/permission/delete',
         method: 'POST',
         data: records.map(r => r.baseId)
     }).then((response: AxiosResponse) => {
@@ -43,7 +42,7 @@ const onRowDelete = (records: Account[]) => {
 const onRowReorder = (event: DataTableRowReorderEvent) => {
     const {dragIndex, dropIndex} = event;
     request({
-        url: '/user/reorder',
+        url: '/permission/reorder',
         method: 'POST',
         params: {
             leftTarget: tableData.value[dragIndex].orderNum,
@@ -61,9 +60,9 @@ const onTableDataRefresh = () => {
 };
 
 // 顺序交换逻辑
-const onOrderSwap = (swapRecords: Account[]) => {
+const onOrderSwap = (swapRecords: Permission[]) => {
     request({
-        url: '/user/orderSwap',
+        url: '/permission/orderSwap',
         method: 'POST',
         params: {
             leftTargetBaseId: swapRecords[0].baseId,
@@ -79,15 +78,14 @@ const onOrderSwap = (swapRecords: Account[]) => {
 
 // 修改或新增逻辑
 const showInfoDialog = ref(false);
-const recordInfo = ref<Account>({});
-const onRowUpdateOrAdd = (record: Account) => {
+const recordInfo = ref<Permission>({});
+const onRowUpdateOrAdd = (record: Permission) => {
     recordInfo.value = record;
     showInfoDialog.value = true;
 };
 const updateOrAdd = () => {
-    recordInfo.value.password = btoa(sha256().update(recordInfo.value.password).digest('hex'));
     request({
-        url: `/user/${recordInfo.value?.baseId ? 'update' : 'add'}`,
+        url: `/permission/${recordInfo.value?.baseId ? 'update' : 'add'}`,
         method: 'POST',
         data: recordInfo.value
     }).then((response: AxiosResponse) => {
@@ -99,10 +97,9 @@ const updateOrAdd = () => {
 
 // 字段列表
 const filedList = ref<Array<ColumnProps>>([
-    {field: 'openId', header: 'OpenID', style: 'width:20%;min-width:10rem;'},
-    {field: 'phone', header: '手机号', style: 'width:20%;min-width:10rem;'},
-    {field: 'email', header: '邮箱', style: 'width:20%;min-width:10rem;'},
-    {field: 'nickname', header: '昵称', style: 'width:10%;min-width:7rem;'},
+    {field: 'permissionName', header: '权限名称', style: 'width:20%;min-width:10rem;'},
+    {field: 'permissionCode', header: '权限代码', style: 'width:20%;min-width:10rem;'},
+    {field: 'permissionDesc', header: '权限描述', style: 'width:20%;min-width:10rem;'},
 ]);
 
 </script>
@@ -115,7 +112,7 @@ const filedList = ref<Array<ColumnProps>>([
                          :on-row-update-or-add="onRowUpdateOrAdd"
                          :on-table-data-refresh="onTableDataRefresh"
                          :table-data="tableData"
-                         table-name="账户">
+                         table-name="权限">
             <template v-slot:column>
                 <Column v-for="filed in filedList"
                         :key="filed.field"
@@ -132,61 +129,27 @@ const filedList = ref<Array<ColumnProps>>([
                 <div class="p-dialog-title">{{ recordInfo?.baseId ? '修改' : '新增' }}数据</div>
             </template>
             <div class="field">
-                <label>昵称</label>
+                <label>权限名称</label>
                 <InputText
-                    id="nickname"
-                    v-model="recordInfo.nickname"
-                    integeronly
+                    id="PermissionName"
+                    v-model="recordInfo.permissionName"
                 />
             </div>
             <div class="formgrid grid">
                 <div class="field col">
-                    <label>Open ID</label>
+                    <label>权限代码</label>
                     <InputText
-                        id="phone"
-                        v-model="recordInfo.openId"
-                        integeronly
+                        id="PermissionCode"
+                        v-model="recordInfo.permissionCode"
                     />
-                </div>
-                <div class="field col">
-                    <label class="text-600 font-bold ml-1" for="password">密码</label>
-                    <Password id="password" v-model="recordInfo.password" :toggleMask="true"
-                              class="w-full" inputClass="w-full font-bold" mediumLabel="适中"
-                              prompt-label="输入您的密码" strongLabel="安全" weakLabel="过于简单">
-                        <template #header>
-                            <label class="text-600 font-bold pb-2">我们不会存储您的明文密码</label>
-                            <br/>
-                            <label class="text-600 font-bold">您的密码将在本地经过加密与二次编码后上传</label>
-                        </template>
-                        <template #footer>
-                            <Divider class="my-2"/>
-                            <p class="mb-0">密码建议</p>
-                            <ul class="pl-3 ml-2 mt-2 mb-0" style="line-height: 1.5">
-                                <li>至少一个小写字母</li>
-                                <li>至少一个大写字母</li>
-                                <li>至少一个数字</li>
-                                <li>最小8个字符</li>
-                            </ul>
-                        </template>
-                    </Password>
                 </div>
             </div>
-
             <div class="formgrid grid">
                 <div class="field col">
-                    <label>手机号</label>
+                    <label>权限描述</label>
                     <InputText
-                        id="phone"
-                        v-model="recordInfo.phone"
-                        integeronly
-                    />
-                </div>
-                <div class="field col">
-                    <label>邮箱</label>
-                    <InputText
-                        id="email"
-                        v-model="recordInfo.email"
-                        integeronly
+                        id="PermissionDesc"
+                        v-model="recordInfo.permissionDesc"
                     />
                 </div>
             </div>

@@ -12,4 +12,37 @@ export interface Account extends BaseFiled {
     email?: string;
     nickname?: string;
     avatarAddress?: string;
+    roles?: Array<Role>;
+}
+
+export interface Role extends BaseFiled {
+    roleName?: string;
+    roleCode?: string;
+    roleDesc?: string;
+    permissions?: Array<Permission>;
+}
+
+export interface Permission extends BaseFiled {
+    permissionName?: string;
+    permissionCode?: string;
+    permissionDesc?: string;
+    routers?: Array<Router>;
+    interfaces?: Array<Interface>;
+}
+
+export interface Router extends BaseFiled {
+    routerName?: string;
+    routerPath?: string;
+    parentId?: string;
+    routerType?: string;
+    routerIcon?: string;
+    componentPath?: string;
+    isHidden?: boolean;
+}
+
+export interface Interface extends BaseFiled {
+    interfaceName?: string;
+    interfacePath?: string;
+    requestType?: string;
+    interfaceDesc?: string;
 }

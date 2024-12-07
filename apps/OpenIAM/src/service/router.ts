@@ -36,6 +36,16 @@ const router = createRouter({
                             component: () => import('@/views/control/UserControl.vue')
                         },
                         {
+                            path: 'roleControl',
+                            name: 'roleControl',
+                            component: () => import('@/views/control/RoleControl.vue')
+                        },
+                        {
+                            path: 'permissionControl',
+                            name: 'permissionControl',
+                            component: () => import('@/views/control/PermissionControl.vue')
+                        },
+                        {
                             path: 'appControl',
                             name: 'appControl',
                             component: () => import('@/views/control/AppControl.vue')

@@ -21,6 +21,16 @@ const model = ref([
                 to: '/control/userControl'
             },
             {
+                label: '角色管理',
+                icon: 'pi pi-fw pi-users',
+                to: '/control/roleControl'
+            },
+            {
+                label: '权限管理',
+                icon: 'pi pi-fw pi-users',
+                to: '/control/permissionControl'
+            },
+            {
                 label: '应用管理',
                 mdi: 'mdi:table',
                 style: {width: '18px', height: '17px'},
