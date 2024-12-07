@@ -118,7 +118,7 @@ const showFooter = computed(() => {
 
 // 迷你显示
 const miniShow = computed(() => {
-    return windowWidth.value < 563;
+    return windowWidth.value < 688;
 });
 
 // 表数据导出

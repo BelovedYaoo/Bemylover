@@ -28,9 +28,9 @@ const filedList = ref<Array<ColumnProps>>([
     {field: 'clientName', header: '应用名称', style: 'width:10%;min-width:10rem;'},
     {field: 'clientId', header: '应用ID', style: 'width:10%;min-width:10rem;'},
     {field: 'clientSecret', header: '应用密钥', style: 'width:15%;min-width:10rem;'},
-    {field: 'contractScopes', header: '签约的所有权限', style: 'width:10%;min-width:7rem;'},
-    {field: 'allowRedirectUris', header: '允许授权的redirect_uri', style: 'width:10%;min-width:7rem;'},
-    {field: 'allowGrantTypes', header: '允许的授权类型', style: 'width:10%;min-width:7rem;'},
+    {field: 'contractScopes', header: '签约的所有权限', style: 'width:15%;min-width:12rem;'},
+    {field: 'allowRedirectUris', header: '允许授权的redirect_uri', style: 'width:15%;min-width:15rem;'},
+    {field: 'allowGrantTypes', header: '允许的授权类型', style: 'width:15%;min-width:10rem;'},
 ]);
 
 const toast = useToast();
@@ -195,9 +195,11 @@ const allAuthGrantType = ref([
                 <div class="field col-12">
                     <label>授权类型</label>
                     <div class="flex flex-row gap-3">
-                        <div v-for="authGrantType of allAuthGrantType" :key="authGrantType.key" class="flex align-items-center">
-                            <Checkbox v-model="recordInfo.allowGrantTypes" :inputId="authGrantType.key" :value="authGrantType.value"
-                                      :name="authGrantType.value"/>
+                        <div v-for="authGrantType of allAuthGrantType" :key="authGrantType.key"
+                             class="flex align-items-center">
+                            <Checkbox v-model="recordInfo.allowGrantTypes" :inputId="authGrantType.key"
+                                      :name="authGrantType.value"
+                                      :value="authGrantType.value"/>
                             <label class="pl-2 align-self-baseline">{{ authGrantType.label }}</label>
                         </div>
                     </div>
