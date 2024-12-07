@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import axios from 'axios';
 
-let timer = reactive({});
+const isShow = ref(false);
 
 const yiyan = ref('永远都有更好，但眼下便是最好');
 const apiList = ref(['https://api.vvhan.com/api/text/love', 'https://v1.hitokoto.cn?encode=text', 'https://tenapi.cn/v2/yiyan', 'https://uapis.cn/api/say']);
@@ -12,29 +12,20 @@ const apiAvailability = ref(10);
 // 挂载！
 onMounted(() => {
     // 初始化一言
+    isShow.value = true;
     apiUse.value = apiList.value[0];
     updateYiyan();
-    // 定时执行
-    timer = setInterval(() => {
-        updateYiyan();
-    }, 6000);
 });
 
-// 取消挂载！
 onUnmounted(() => {
-    clearTimer();
+    isShow.value = false;
 });
-
-// 清除一言计时器
-const clearTimer = () => {
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
-};
 
 // 一言渐变更新
 let updateYiyan = () => {
+    if (!isShow.value) {
+        return;
+    }
     // 获取类名含有yiyan的元素
     const span = document.querySelector('.yiyan') as HTMLBodyElement;
     // 获取一言
@@ -63,6 +54,9 @@ let updateYiyan = () => {
                 // 为yiyan元素添加渐显效果
                 span.style.opacity = '1';
             }, 500);
+            setTimeout(() => {
+                updateYiyan();
+            }, 6000);
         })
         .catch(() => {
             switchApi();
@@ -90,8 +84,6 @@ watch(apiAvailability, (newValue) => {
         console.warn('API 可用性已降至 0');
         // 中断一言更新函数
         updateYiyan = null;
-        // 清除一言定时器
-        clearTimer();
         // 固定一言显示
         yiyan.value = '永远都有更好，但眼下便是最好';
         // 获取类名含有yiyan的元素
@@ -104,8 +96,8 @@ watch(apiAvailability, (newValue) => {
 
 <template>
     <span class="text-600 font-bold yiyan" style="transition: opacity 0.5s">{{
-        yiyan
-    }}</span>
+            yiyan
+        }}</span>
 </template>
 
 <style lang="scss" scoped>
