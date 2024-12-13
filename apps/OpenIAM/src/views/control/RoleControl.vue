@@ -5,7 +5,7 @@ import { DataTableRowReorderEvent } from 'primevue/datatable';
 import { ColumnProps } from 'primevue/column';
 import request from '@/service/request';
 import { AxiosResponse } from 'axios';
-import { responseToastConfig } from '@/service/globalQuote';
+import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
 import { Role } from '@/typing/types/type';
 

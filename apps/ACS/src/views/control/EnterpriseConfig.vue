@@ -2,7 +2,6 @@
 import { onBeforeMount, ref } from 'vue';
 import request from '@/service/request';
 import { AxiosResponse } from 'axios';
-import { useToast } from 'primevue/usetoast';
 import { BaseTenantFiled } from 'agility-core/src/types/base';
 import EnterpriseInput from '@/components/EnterpriseInput.vue';
 
@@ -32,8 +31,6 @@ interface EnterpriseConfig extends BaseTenantFiled {
     isEnabledPush: string;
     pushCorn: string;
 }
-
-const toast = useToast();
 
 onBeforeMount(() => {
     dataInit();

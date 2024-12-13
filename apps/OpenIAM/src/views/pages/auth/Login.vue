@@ -2,13 +2,14 @@
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import cookie from 'js-cookie';
-import { addClassById, getParameterByName, globalConfig, responseToastConfig } from '@/service/globalQuote';
+import {  globalConfig } from '@/service/globalQuote';
+import { addClassById, getParameterByName, isValid, responseToastConfig } from 'agility-core/src/service/toolkit';
 import request from '@/service/request';
 import router from '@/service/router';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
 import axios, { AxiosResponse } from 'axios';
-import { sha256 } from "hash.js";
+import { sha256 } from 'hash.js';
 
 const toast = useToast();
 
@@ -16,6 +17,10 @@ const openId = ref('');
 const password = ref('');
 const remember = ref(false);
 const checked = ref(false);
+
+const responseType = ref('');
+const clientId = ref('');
+const redirectUri = ref('');
 
 const passwordIsFocus = ref(false);
 const openIdIsFocus = ref(false);
@@ -45,6 +50,12 @@ onMounted(() => {
     const tokenValue = cookie.get('openToken');
     if (tokenValue === '' || tokenValue === null || tokenValue === undefined) {
         return;
+    }
+    responseType.value = getParameterByName('response_type');
+    clientId.value = getParameterByName('client_id');
+    redirectUri.value = getParameterByName('redirect_uri');
+    if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
+        window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
     }
     code();
 });
@@ -85,8 +96,11 @@ const code = () => {
         method: 'POST',
         url: 'http://openiam.top:8091/oauth2/authorize',
         params: {
+            // eslint-disable-next-line camelcase
             response_type: getParameterByName('response_type'),
+            // eslint-disable-next-line camelcase
             client_id: getParameterByName('client_id'),
+            // eslint-disable-next-line camelcase
             redirect_uri: getParameterByName('redirect_uri'),
             scope: 'oidc'
         },
@@ -98,8 +112,10 @@ const code = () => {
             router.push({
                     path: '/auth/confirm',
                     query: {
-                        clientId: res.data.data.clientId,
+                        // eslint-disable-next-line camelcase
+                        client_id: res.data.data.client_id,
                         scope: res.data.data.scope,
+                        // eslint-disable-next-line camelcase
                         redirect_uri: getParameterByName('redirect_uri')
                     }
                 });

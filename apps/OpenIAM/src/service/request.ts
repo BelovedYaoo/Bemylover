@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 import cookie from 'js-cookie';
 import router from '@/service/router';
-import { getParameterByName, globalConfig,signOut } from './globalQuote.ts';
+import { globalConfig, signOut } from './globalQuote.ts';
+import { getParameterByName, isValid } from 'agility-core/src/service/toolkit';
 
 export const url: string = 'http://openiam.top:8090';
 // export const url: string = 'http://192.168.1.100:8090';
@@ -20,7 +21,7 @@ service.interceptors.request.use(
     (config) => {
         const tokenValue = cookie.get(globalConfig.appTokenName);
         // 将cookie中的token设置在请求头中
-        if (tokenValue !== '' && tokenValue !== null && tokenValue !== undefined) {
+        if (isValid(tokenValue)) {
             config.headers['token'] = tokenValue;
         }
         config.headers['Content-Type'] = 'application/json';
@@ -48,8 +49,10 @@ service.interceptors.response.use(
                 router.push({
                     path: '/auth/confirm',
                     query: {
-                        clientId: res.data.data.clientId,
+                        // eslint-disable-next-line camelcase
+                        client_id: res.data.data.client_id,
                         scope: res.data.data.scope,
+                        // eslint-disable-next-line camelcase
                         redirect_uri: getParameterByName('redirect_uri')
                     }
                 });

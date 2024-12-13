@@ -7,9 +7,6 @@ import router from '@/service/router';
 import 'agility-core/src/assets/styles.scss';
 import PrimeVueImportAll from 'agility-core/src/service/PrimeVueImportAll';
 
-//全局函数模块
-import globalQuotePlugin from '@/service/globalQuotePlugin.ts';
-
 const app = createApp(App);
 const pinia = createPinia();
 
@@ -18,6 +15,5 @@ PrimeVueImportAll(app);
 
 app.use(pinia);
 app.use(router);
-app.use(globalQuotePlugin);
 
 app.mount('#app');

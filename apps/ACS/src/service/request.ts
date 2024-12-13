@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 import cookie from 'js-cookie';
 import router from './router';
-import { getParameterByName, globalConfig, signOut } from './globalQuote.ts';
+import { globalConfig, signOut } from './globalQuote.ts';
+import { getParameterByName } from 'agility-core/src/service/toolkit';
 
 export const url: string = 'http://acs.top:1320';
 // export const url: string = 'http://192.168.1.100:1320';
@@ -50,6 +51,7 @@ service.interceptors.response.use(
                     query: {
                         clientId: res.data.data.clientId,
                         scope: res.data.data.scope,
+                        // eslint-disable-next-line camelcase
                         redirect_uri: getParameterByName('redirect_uri')
                     }
                 });

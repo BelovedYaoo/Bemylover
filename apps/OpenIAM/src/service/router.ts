@@ -3,7 +3,8 @@ import AppLayout from 'agility-core/src/layout/AppLayout.vue';
 import AppTopbar from '@/layout/AppTopbar.vue';
 import AppSidebar from '@/layout/AppSidebar.vue';
 import AppFooter from '@/layout/AppFooter.vue';
-import { getParameterByName, globalConfig } from './globalQuote.ts';
+import { globalConfig } from './globalQuote.ts';
+import { getParameterByName, isValid } from 'agility-core/src/service/toolkit';
 import cookie from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import request from '@/service/request';
@@ -115,13 +116,20 @@ router.beforeEach((to, from, next) => {
     // 判断是否携带授权码
     const code = getParameterByName('code');
     const tokenValue = cookie.get(globalConfig.appTokenName);
-    if ((tokenValue === '' || tokenValue === null || tokenValue === undefined) && (code === '' || code === null)) {
+    if (!isValid(tokenValue) && !isValid(code)) {
         alert('未登录!');
         next({
             name: 'login',
-            query: {response_type: 'code', client_id: globalConfig.clientId, redirect_uri: globalConfig.indexUrl}
+            query: {
+                // eslint-disable-next-line camelcase
+                response_type: 'code',
+                // eslint-disable-next-line camelcase
+                client_id: globalConfig.clientId,
+                // eslint-disable-next-line camelcase
+                redirect_uri: globalConfig.indexUrl
+            }
         });
-    } else if (code !== '' && code !== null && code !== undefined) {
+    } else if (isValid(code)) {
         request({
             method: 'GET',
             url: '/openAuth/codeLogin',
@@ -129,13 +137,16 @@ router.beforeEach((to, from, next) => {
                 code: code,
             }
         }).then((res: AxiosResponse) => {
-            if (res.data.code !== 200 && (tokenValue === '' || tokenValue === null || tokenValue === undefined)) {
+            if (res.data.code !== 200 && !isValid(tokenValue)) {
                 alert('未登录');
                 next({
                     name: 'login',
                     query: {
+                        // eslint-disable-next-line camelcase
                         response_type: 'code',
+                        // eslint-disable-next-line camelcase
                         client_id: globalConfig.clientId,
+                        // eslint-disable-next-line camelcase
                         redirect_uri: globalConfig.indexUrl
                     }
                 });

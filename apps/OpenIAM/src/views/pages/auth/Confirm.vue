@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { useToast } from 'primevue/usetoast';
-import { getParameterByName, globalConfig } from '@/service/globalQuote';
+import { globalConfig } from '@/service/globalQuote';
+import { getParameterByName } from 'agility-core/src/service/toolkit';
 import LogoSvg from '@/components/LogoSvg.vue';
 import axios, { AxiosResponse } from 'axios';
 import cookie from 'js-cookie';
-
-const toast = useToast();
 
 const doConfirm = () => {
     axios.request({
@@ -17,11 +15,15 @@ const doConfirm = () => {
         method: 'POST',
         url: 'http://openiam.top:8091/oauth2/doConfirm',
         params: {
-            client_id: getParameterByName('clientId'),
+            // eslint-disable-next-line camelcase
+            client_id: getParameterByName('client_id'),
             scope: getParameterByName('scope'),
             // 以下四个参数必须一起出现
+            // eslint-disable-next-line camelcase
             build_redirect_uri: true,
+            // eslint-disable-next-line camelcase
             response_type: 'code',
+            // eslint-disable-next-line camelcase
             redirect_uri: getParameterByName('redirect_uri'),
             state: '',
         },
