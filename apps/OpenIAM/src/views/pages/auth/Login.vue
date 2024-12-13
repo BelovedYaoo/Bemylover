@@ -48,14 +48,16 @@ const checkRegisterAccountInfo = () => {
 
 onMounted(() => {
     const tokenValue = cookie.get('openToken');
+    // 如果没有Token
     if (tokenValue === '' || tokenValue === null || tokenValue === undefined) {
+        responseType.value = getParameterByName('response_type');
+        clientId.value = getParameterByName('client_id');
+        redirectUri.value = getParameterByName('redirect_uri');
+        // 如果缺少参数
+        if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
+            window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
+        }
         return;
-    }
-    responseType.value = getParameterByName('response_type');
-    clientId.value = getParameterByName('client_id');
-    redirectUri.value = getParameterByName('redirect_uri');
-    if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
-        window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
     }
     code();
 });
