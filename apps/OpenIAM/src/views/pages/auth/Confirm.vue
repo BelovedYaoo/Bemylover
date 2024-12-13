@@ -4,27 +4,37 @@ import { getParameterByName } from 'agility-core/src/service/toolkit';
 import LogoSvg from '@/components/LogoSvg.vue';
 import axios, { AxiosResponse } from 'axios';
 import cookie from 'js-cookie';
+import { onMounted, ref } from 'vue';
+
+const scope = ref('');
+const clientId = ref('');
+const redirectUri = ref('');
+
+onMounted(() => {
+    scope.value = getParameterByName('scope');
+    clientId.value = getParameterByName('client_id');
+    redirectUri.value = getParameterByName('redirect_uri');
+});
 
 const doConfirm = () => {
     axios.request({
         headers: {
             'Content-Type': 'application/json',
-            'token': cookie.get('openToken')
+            [globalConfig.openAuthServerTokenName]: cookie.get(globalConfig.openAuthServerTokenName)
         },
-        withCredentials: true,
         method: 'POST',
         url: 'http://openiam.top:8091/oauth2/doConfirm',
         params: {
             // eslint-disable-next-line camelcase
-            client_id: getParameterByName('client_id'),
-            scope: getParameterByName('scope'),
+            client_id: clientId.value,
+            scope: scope.value,
             // 以下四个参数必须一起出现
             // eslint-disable-next-line camelcase
             build_redirect_uri: true,
             // eslint-disable-next-line camelcase
             response_type: 'code',
             // eslint-disable-next-line camelcase
-            redirect_uri: getParameterByName('redirect_uri'),
+            redirect_uri: redirectUri.value,
             state: '',
         },
     }).then((res: AxiosResponse) => {
@@ -32,13 +42,12 @@ const doConfirm = () => {
         if (res.data.code === 200) {
             location.href = res.data.redirect_uri;
         }
-        // window.location.href = res.data.data;
     });
 };
 
 const doDenied = () => {
     cookie.remove('openToken');
-    location.href = getParameterByName('redirect_uri');
+    location.href = redirectUri.value;
 };
 </script>
 
@@ -58,8 +67,8 @@ const doDenied = () => {
                     </div>
                     <div class="pt-3">
                         <div class="flex flex-column">
-                            <label class="font-bold ml-1 text-600">应用ID：{{ getParameterByName('clientId') }}</label>
-                            <label class="font-bold ml-1 text-600">授权范围：{{ getParameterByName('scope') }}</label>
+                            <label class="font-bold ml-1 text-600">应用ID：{{ clientId }}</label>
+                            <label class="font-bold ml-1 text-600">授权范围：{{ scope }}</label>
                         </div>
 
                         <div class="flex align-items-center justify-content-between pt-3 mb-3 gap-5">

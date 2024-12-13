@@ -23,6 +23,7 @@ interface AppConfig {
     appName: string;
     appTokenName: string;
     openAuthServerUrl: string;
+    openAuthServerTokenName: string;
     clientId: string;
     indexUrl: string;
 }
@@ -37,6 +38,8 @@ export const globalConfig: AppConfig = {
     appTokenName: 'iamToken',
     // OpenAuth 认证服务URL
     openAuthServerUrl: 'http://openiam.top:9036/#/auth/login',
+    // OpenAuth 认证服务Token名称
+    openAuthServerTokenName: 'openToken',
     // OpenAuth 应用端ID
     clientId: '1000',
     // 主页URL

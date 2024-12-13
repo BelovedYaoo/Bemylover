@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import cookie from 'js-cookie';
-import {  globalConfig } from '@/service/globalQuote';
+import { globalConfig } from '@/service/globalQuote';
 import { addClassById, getParameterByName, isValid, responseToastConfig } from 'agility-core/src/service/toolkit';
 import request from '@/service/request';
 import router from '@/service/router';
@@ -25,7 +25,7 @@ const redirectUri = ref('');
 const passwordIsFocus = ref(false);
 const openIdIsFocus = ref(false);
 
-const errorToast = (className:string, summary:string, detail:string) => {
+const errorToast = (className: string, summary: string, detail: string) => {
     toast.add({
         severity: 'error',
         summary: summary,
@@ -73,10 +73,9 @@ const login = () => {
         url: 'http://openiam.top:8091/oauth2/doLogin',
         params: {
             username: openId.value,
-            // pwd: btoa(sha256().update(password.value).digest('hex'))
             password: btoa(sha256().update(password.value).digest('hex'))
         }
-    }).then((res:AxiosResponse) => {
+    }).then((res: AxiosResponse) => {
         toast.add(responseToastConfig(res));
         if (res.data.code === 200 && res.data.data.tokenValue !== null) {
             // token存入cookie
@@ -92,9 +91,8 @@ const code = () => {
     axios.request({
         headers: {
             'Content-Type': 'application/json',
-            'token': cookie.get('openToken')
+            [globalConfig.openAuthServerTokenName]: cookie.get(globalConfig.openAuthServerTokenName)
         },
-        withCredentials: true,
         method: 'POST',
         url: 'http://openiam.top:8091/oauth2/authorize',
         params: {
@@ -112,15 +110,15 @@ const code = () => {
             window.location.href = res.data.data;
         } else if (res.data.code === 901) {
             router.push({
-                    path: '/auth/confirm',
-                    query: {
-                        // eslint-disable-next-line camelcase
-                        client_id: res.data.data.client_id,
-                        scope: res.data.data.scope,
-                        // eslint-disable-next-line camelcase
-                        redirect_uri: getParameterByName('redirect_uri')
-                    }
-                });
+                path: '/auth/confirm',
+                query: {
+                    // eslint-disable-next-line camelcase
+                    client_id: res.data.data.client_id,
+                    scope: res.data.data.scope,
+                    // eslint-disable-next-line camelcase
+                    redirect_uri: getParameterByName('redirect_uri')
+                }
+            });
         }
     });
 };

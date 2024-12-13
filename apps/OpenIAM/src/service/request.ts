@@ -22,7 +22,7 @@ service.interceptors.request.use(
         const tokenValue = cookie.get(globalConfig.appTokenName);
         // 将cookie中的token设置在请求头中
         if (isValid(tokenValue)) {
-            config.headers['token'] = tokenValue;
+            config.headers[globalConfig.appTokenName] = tokenValue;
         }
         config.headers['Content-Type'] = 'application/json';
         return config;
