@@ -4,7 +4,6 @@ import { useToast } from 'primevue/usetoast';
 import cookie from 'js-cookie';
 import { globalConfig } from '@/service/globalQuote';
 import { addClassById, getParameterByName, isValid, responseToastConfig } from 'agility-core/src/service/toolkit';
-import request from '@/service/request';
 import router from '@/service/router';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
@@ -68,7 +67,7 @@ const login = () => {
     if (!checked.value) {
         return;
     }
-    request({
+    axios.request({
         method: 'POST',
         url: 'http://openiam.top:8091/oauth2/doLogin',
         params: {
@@ -105,7 +104,6 @@ const code = () => {
             scope: 'oidc'
         },
     }).then((res: AxiosResponse) => {
-        console.log(res.data);
         if (res.data.code === 200) {
             window.location.href = res.data.data;
         } else if (res.data.code === 901) {

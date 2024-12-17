@@ -36,19 +36,27 @@ export const addClassById = (id: string, className: string, duringSecond: number
  * @param name 参数名
  * @param url 链接地址(默认为当前地址)
  */
-export const getParameterByName = (name: string, url = window.location.href) => {
+export const getParameterByName = (name: string, url: string = window.location.href): null | string => {
     name = name.replace(/[\[\]]/g, '\\$&');
-    const regex = new RegExp(`[?&]${  name  }(=([^&#]*)|&|#|$)`),
-        results = regex.exec(url);
+    const regex: RegExp = new RegExp(`[?&]${  name  }(=([^&#]*)|&|#|$)`),
+        results: RegExpExecArray = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
 
 /**
- * 判断参数是否为空
+ * 判断参数是否不为空
  * @param params 参数
  */
 export const isValid = (params: string): boolean => {
-    return !(params === '' || params === null || params === undefined || params.length === 0);
+    return !isNotValid(params);
+};
+
+/**
+ * 判断参数是否为空
+ * @param params 参数
+ */
+export const isNotValid = (params: string): boolean => {
+    return (params === '' || params === null || params === undefined || params.length === 0);
 };

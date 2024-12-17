@@ -1,10 +1,16 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import {
+    createRouter,
+    createWebHashHistory,
+    NavigationGuardNext,
+    RouteLocationNormalizedGeneric,
+    RouteLocationNormalizedLoadedGeneric
+} from 'vue-router';
 import AppLayout from 'agility-core/src/layout/AppLayout.vue';
 import AppTopbar from '@/layout/AppTopbar.vue';
 import AppSidebar from '@/layout/AppSidebar.vue';
 import AppFooter from '@/layout/AppFooter.vue';
 import { globalConfig } from './globalQuote.ts';
-import { getParameterByName, isValid } from 'agility-core/src/service/toolkit';
+import { getParameterByName, isNotValid, isValid } from 'agility-core/src/service/toolkit';
 import cookie from 'js-cookie';
 import { AxiosResponse } from 'axios';
 import request from '@/service/request';
@@ -103,21 +109,41 @@ const whiteList = ref([
     'register',
     'confirm',
     'notFound',
-    'notFound',
     'error'
 ]);
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedLoadedGeneric, next: NavigationGuardNext): void => {
     // 白名单路由放行
     if (whiteList.value.includes(to.name)) {
         return next();
     }
-    // 判断是否携带授权码
-    const code = getParameterByName('code');
-    const tokenValue = cookie.get(globalConfig.appTokenName);
-    if (!isValid(tokenValue) && !isValid(code)) {
-        alert('未登录!');
+    // 获取授权码 Code
+    const code: string = getParameterByName('code');
+    // 如果存在授权码 Code，通过授权码 Code 登录
+    if (isValid(code)) {
+        request({
+            method: 'GET',
+            url: '/openAuth/codeLogin',
+            params: {
+                code: code,
+            }
+        }).then((res: AxiosResponse): void => {
+            // 如果存在 Token，存储 Token 并进入首页
+            if (isValid(res.data.data.tokenValue)) {
+                cookie.set(globalConfig.appTokenName, res.data.data.tokenValue);
+                window.location.href = globalConfig.indexUrl;
+            }
+        });
+    }
+    // 获取 Token
+    const tokenValue: string = cookie.get(globalConfig.appTokenName);
+    // 如果存在 Token，直接放行
+    // 否则，如果不存在 Code，跳转到登录页面
+    // Token 的有效性判断会在网络请求中进行
+    if (isValid(tokenValue)) {
+        return next();
+    } else if (isNotValid(code)) {
         next({
             name: 'login',
             query: {
@@ -129,36 +155,7 @@ router.beforeEach((to, from, next) => {
                 redirect_uri: globalConfig.indexUrl
             }
         });
-    } else if (isValid(code)) {
-        request({
-            method: 'GET',
-            url: '/openAuth/codeLogin',
-            params: {
-                code: code,
-            }
-        }).then((res: AxiosResponse) => {
-            if (res.data.code !== 200 && !isValid(tokenValue)) {
-                alert('未登录');
-                next({
-                    name: 'login',
-                    query: {
-                        // eslint-disable-next-line camelcase
-                        response_type: 'code',
-                        // eslint-disable-next-line camelcase
-                        client_id: globalConfig.clientId,
-                        // eslint-disable-next-line camelcase
-                        redirect_uri: globalConfig.indexUrl
-                    }
-                });
-            } else if (res.data.code === 200 && res.data.data.tokenValue !== null) {
-                // token存入cookie
-                cookie.set(globalConfig.appTokenName, res.data.data.tokenValue);
-            }
-        }).finally(() => {
-            window.location.href = globalConfig.indexUrl;
-        });
     }
-    next();
 });
 
 export default router;

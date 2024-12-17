@@ -1,8 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import cookie from 'js-cookie';
-import router from './router';
 import { globalConfig, signOut } from './globalQuote.ts';
-import { getParameterByName } from 'agility-core/src/service/toolkit';
+import { isValid } from 'agility-core/src/service/toolkit';
 
 export const url: string = 'http://acs.top:1320';
 // export const url: string = 'http://192.168.1.100:1320';
@@ -14,15 +13,15 @@ const service: AxiosInstance = axios.create({
 });
 
 // 设置cross跨域 并设置访问权限 允许跨域携带cookie信息,使用JWT可关闭
-service.defaults.withCredentials = true;
+service.defaults.withCredentials = false;
 
 // 请求拦截器
 service.interceptors.request.use(
     (config) => {
-        const tokenValue = cookie.get(globalConfig.appTokenName);
+        const tokenValue: string = cookie.get(globalConfig.appTokenName);
         // 将cookie中的token设置在请求头中
-        if (tokenValue !== '' && tokenValue !== null && tokenValue !== undefined) {
-            config.headers['token'] = tokenValue;
+        if (isValid(tokenValue)) {
+            config.headers[globalConfig.appTokenName] = tokenValue;
         }
         config.headers['Content-Type'] = 'application/json';
         return config;
@@ -38,23 +37,11 @@ service.interceptors.response.use(
         // 获取后端返回的状态码
         const code = res.data.code;
         switch (code) {
-            // Token 失效
+            // 会话失效
             case 700:
             // 未登录
             case 900:
                 signOut();
-                break;
-            // 需要授权
-            case 901:
-                router.push({
-                    path: '/auth/confirm',
-                    query: {
-                        clientId: res.data.data.clientId,
-                        scope: res.data.data.scope,
-                        // eslint-disable-next-line camelcase
-                        redirect_uri: getParameterByName('redirect_uri')
-                    }
-                });
                 break;
         }
         return res;

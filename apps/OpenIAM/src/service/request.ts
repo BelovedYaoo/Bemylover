@@ -19,7 +19,7 @@ service.defaults.withCredentials = false;
 // 请求拦截器
 service.interceptors.request.use(
     (config) => {
-        const tokenValue = cookie.get(globalConfig.appTokenName);
+        const tokenValue: string = cookie.get(globalConfig.appTokenName);
         // 将cookie中的token设置在请求头中
         if (isValid(tokenValue)) {
             config.headers[globalConfig.appTokenName] = tokenValue;
@@ -38,11 +38,15 @@ service.interceptors.response.use(
         // 获取后端返回的状态码
         const code = res.data.code;
         switch (code) {
-            // Token 失效
+            // 会话失效
             case 700:
             // 未登录
             case 900:
                 signOut();
+                break;
+            case 500:
+                // 清除token
+                cookie.remove(globalConfig.appTokenName);
                 break;
             // 需要授权
             case 901:
