@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { globalConfig } from '@/service/globalQuote';
-import { getParameterByName } from 'agility-core/src/service/toolkit';
+import { getParameterByName, isNotValid } from 'agility-core/src/service/toolkit';
 import LogoSvg from '@/components/LogoSvg.vue';
 import axios, { AxiosResponse } from 'axios';
 import cookie from 'js-cookie';
@@ -14,6 +14,9 @@ onMounted(() => {
     scope.value = getParameterByName('scope');
     clientId.value = getParameterByName('client_id');
     redirectUri.value = getParameterByName('redirect_uri');
+    if (isNotValid(cookie.get(globalConfig.openAuthServerTokenName))) {
+        window.location.href = redirectUri.value;
+    }
 });
 
 const doConfirm = () => {
