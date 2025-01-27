@@ -858,7 +858,6 @@
   .p-dropdown {
     background: #09090B;
     border: 1px solid #424b57;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
     border-radius: 6px;
   }
   .p-dropdown:not(.p-disabled):hover {
@@ -1100,7 +1099,6 @@
     background: #09090B;
     padding: 0.75rem 0.75rem;
     border: 1px solid #424b57;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
     appearance: none;
     border-radius: 6px;
   }
@@ -3165,7 +3163,7 @@
     height: 3rem;
     margin: 0.143rem;
     transition: box-shadow 0.2s;
-    border-radius: 6px;
+    border-radius: 50%;
   }
   .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
     background: rgba(129, 140, 248, 0.16);
@@ -3781,9 +3779,8 @@
     margin-right: 0;
   }
   .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-    border: 0 solid transparent;
-    border-bottom: 2px #424b57;
-    background: #18181B;
+    border: 1px solid #424b57;
+    border-width: 0 0 2px 0;
     color: rgba(255, 255, 255, 0.6);
     padding: 1.25rem;
     font-weight: 700;
@@ -5627,10 +5624,6 @@
   }
 
   .p-accordion .p-accordion-header .p-accordion-header-link {
-    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
     transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
 

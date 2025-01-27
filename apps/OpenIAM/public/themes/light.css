@@ -861,7 +861,6 @@
   .p-dropdown {
     background: #ffffff;
     border: 1px solid #d1d5db;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
     border-radius: 6px;
   }
   .p-dropdown:not(.p-disabled):hover {
@@ -1103,7 +1102,6 @@
     background: #ffffff;
     padding: 0.75rem 0.75rem;
     border: 1px solid #d1d5db;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
     appearance: none;
     border-radius: 6px;
   }
@@ -3776,7 +3774,6 @@
   }
 
   .p-tabview .p-tabview-nav {
-    background: #ffffff;
     border: 1px solid #e5e7eb;
     border-width: 0 0 2px 0;
   }
@@ -3784,9 +3781,8 @@
     margin-right: 0;
   }
   .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-    border: 0 solid transparent;
-    border-bottom: 2px #e5e7eb;
-    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-width: 0 0 2px 0;
     color: #6b7280;
     padding: 1.25rem;
     font-weight: 700;
@@ -5629,10 +5625,6 @@
   }
 
   .p-accordion .p-accordion-header .p-accordion-header-link {
-    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
     transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
 
