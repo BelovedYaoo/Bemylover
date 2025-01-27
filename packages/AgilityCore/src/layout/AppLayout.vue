@@ -18,7 +18,7 @@ const route = useRoute();
 
 const store = useAgilityCoreStore();
 
-const {windowWidth, windowHeight} = storeToRefs<StoreStateInterface>(store);
+const {windowWidth, windowHeight, flexEnable} = storeToRefs<StoreStateInterface>(store);
 
 // 屏幕尺寸监听
 const getWindowResize = function () {
@@ -45,7 +45,7 @@ const inFlex = computed(() => {
 });
 
 // 是否启用 Flex 布局
-const flexEnable = computed(() => {
+flexEnable.value = computed(() => {
     return inFlex.value && windowWidth.value > flexMinWidth.value;
 });
 
