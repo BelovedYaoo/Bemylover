@@ -8,8 +8,8 @@ export interface StoreStateInterface extends StoreGeneric {
 export const useAgilityCoreStore = defineStore('agilityCore', {
     state: () => {
         return {
-            windowWidth: 1920,
-            windowHeight: 1080
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight
         } as StoreStateInterface;
     },
     actions: {},

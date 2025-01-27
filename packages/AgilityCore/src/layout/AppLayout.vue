@@ -14,21 +14,59 @@ interface AppLayoutProps {
 
 const props = defineProps<AppLayoutProps>();
 
-const { layoutConfig, layoutState, isSidebarActive } = useLayout();
+const route = useRoute();
 
-const outsideClickListener = ref();
+const store = useAgilityCoreStore();
 
-watch(isSidebarActive, (newVal) => {
-    if (newVal) {
-        bindOutsideClickListener();
-    } else {
-        unbindOutsideClickListener();
+const {windowWidth, windowHeight} = storeToRefs<StoreStateInterface>(store);
+
+// 屏幕尺寸监听
+const getWindowResize = function () {
+    windowWidth.value = window.innerWidth;
+    windowHeight.value = window.innerHeight;
+};
+
+// 挂载时监听屏幕尺寸变化
+onMounted(() => {
+    window.addEventListener('resize', getWindowResize);
+});
+
+// 卸载时移除监听
+onUnmounted(() => {
+    window.removeEventListener('resize', getWindowResize);
+});
+
+// 启用 Flex 布局所需的最低宽度
+const flexMinWidth = ref(575);
+
+// 当前路由是否处于 Flex 布局启用名单
+const inFlex = computed(() => {
+    return props.isFlex.some((name) => name === route.name);
+});
+
+// 是否启用 Flex 布局
+const flexEnable = computed(() => {
+    return inFlex.value && windowWidth.value > flexMinWidth.value;
+});
+
+// 屏幕宽度监听
+watch(windowWidth, (newVal) => {
+    // 当前路由处于 Flex 布局启用名单中时
+    if (inFlex.value) {
+        // 当屏幕宽度小于启用 Flex 布局所需的最低宽度时，移除 Flex 布局，否则启用 Flex 布局
+        if (newVal < flexMinWidth.value) {
+            document.querySelector('.layout-main')?.classList.remove('flex');
+        } else {
+            document.querySelector('.layout-main')?.classList.add('flex');
+        }
     }
 });
 
+// 布局容器动态类
 const mainClass = computed(() => {
     return {
-        flex: props.isFlex.some((name) => name === useRoute().name)
+        // Flex 布局
+        flex: flexEnable.value
     };
 });
 
@@ -43,6 +81,19 @@ const containerClass = computed(() => {
         'p-ripple-disabled': !layoutConfig.ripple.value
     };
 });
+
+const {layoutConfig, layoutState, isSidebarActive} = useLayout();
+
+const outsideClickListener = ref();
+
+watch(isSidebarActive, (newVal) => {
+    if (newVal) {
+        bindOutsideClickListener();
+    } else {
+        unbindOutsideClickListener();
+    }
+});
+
 const bindOutsideClickListener = () => {
     if (!outsideClickListener.value) {
         outsideClickListener.value = (event: PointerEvent) => {
@@ -55,12 +106,14 @@ const bindOutsideClickListener = () => {
         document.addEventListener('click', outsideClickListener.value);
     }
 };
+
 const unbindOutsideClickListener = () => {
     if (outsideClickListener.value) {
         document.removeEventListener('click', outsideClickListener.value);
         outsideClickListener.value = null;
     }
 };
+
 const isOutsideClicked = (event: PointerEvent) => {
     const sidebarEl = document.querySelector('.layout-sidebar');
     const topbarEl = document.querySelector('.layout-menu-button');
@@ -72,23 +125,6 @@ const isOutsideClicked = (event: PointerEvent) => {
     } else {
         return !(sidebarEl.isSameNode(event.target as Node) || sidebarEl.contains(event.target as Node));
     }
-};
-
-const store = useAgilityCoreStore();
-const { windowWidth, windowHeight } = storeToRefs<StoreStateInterface>(store);
-
-onMounted(() => {
-    window.addEventListener('resize', getWindowResize);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('resize', getWindowResize);
-});
-
-// 获取屏幕尺寸
-const getWindowResize = function () {
-    windowWidth.value = window.innerWidth;
-    windowHeight.value = window.innerHeight;
 };
 </script>
 
