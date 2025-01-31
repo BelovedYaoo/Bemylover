@@ -86,7 +86,7 @@ const login = () => {
 };
 
 const code = () => {
-    alert('code');
+    alert('通过OIDC协议登录！');
     axios.request({
         headers: {
             'Content-Type': 'application/json',

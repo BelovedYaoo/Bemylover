@@ -7,9 +7,9 @@ import request from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
-import { BaseTenantFiled } from 'agility-core/src/types/base';
+import { TenantFiled } from 'agility-core/src/types/base';
 
-interface LinearCurriculum extends BaseTenantFiled {
+interface LinearCurriculum extends TenantFiled {
     courseName: string;
     courseVenue: number;
     courseType: string;

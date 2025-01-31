@@ -3740,9 +3740,13 @@
   }
 
   .p-scrollpanel .p-scrollpanel-bar {
-    background: #f9fafb;
+    background: var(--primary-200);
     border: 0 none;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .p-scrollpanel .p-scrollpanel-bar:hover {
+    background: var(--primary-400);
   }
   .p-scrollpanel .p-scrollpanel-bar:focus-visible {
     outline: 0 none;

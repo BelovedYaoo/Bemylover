@@ -5,6 +5,7 @@ import router from '@/service/router';
 export const signOut = () => {
     // 清除token
     cookie.remove(globalConfig.appTokenName);
+    cookie.remove(globalConfig.openAuthServerTokenName);
     // 页面跳转
     router.push({
         name: 'login',

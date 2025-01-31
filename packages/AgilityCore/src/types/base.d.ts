@@ -8,9 +8,10 @@ export interface BaseFiled {
     orderNum?: number;
     createTime?: Date;
     updateTime?: Date;
+    creator_id?: string;
+    updater_id?: string;
     disabledAt?: Date;
     deletedAt?: Date;
-    disabled?: boolean;
 }
 
 /**
@@ -18,7 +19,7 @@ export interface BaseFiled {
  * @author BelovedYaoo
  * @version 1.0
  */
-export interface BaseTenantFiled extends BaseFiled{
+export interface TenantFiled extends BaseFiled {
     tenantId?: string;
 }
 
@@ -29,7 +30,7 @@ export interface BaseTenantFiled extends BaseFiled{
  */
 export interface AppMenuItem {
     to?: string
-    items?:AppMenuItem[]
+    items?: AppMenuItem[]
     visible?: boolean
     disabled?: boolean
     class?: string

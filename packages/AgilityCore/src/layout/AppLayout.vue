@@ -136,7 +136,7 @@ const isOutsideClicked = (event: PointerEvent) => {
         </div>
         <div class="layout-main-container">
             <div :class="mainClass" class="layout-main">
-                <router-view></router-view>
+                <router-view/>
             </div>
             <Component :is="props.appFooter"/>
         </div>

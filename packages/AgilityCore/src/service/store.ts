@@ -3,7 +3,7 @@ import { defineStore, StoreGeneric } from 'pinia';
 export interface StoreStateInterface extends StoreGeneric {
     windowWidth: number
     windowHeight: number
-    flexEnable: () => object
+    flexEnable: () => boolean
 }
 
 export const useAgilityCoreStore = defineStore('agilityCore', {
@@ -11,7 +11,8 @@ export const useAgilityCoreStore = defineStore('agilityCore', {
         return {
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
-            flexEnable: () => {
+            flexEnable: (): boolean => {
+                return false;
             }
         } as StoreStateInterface;
     },
