@@ -75,7 +75,7 @@ const logoUrl = computed(() => {
         </button>
 
         <div :class="topbarMenuClasses" class="gap-3 layout-topbar-menu align-items-center">
-            <Button class="m-0 layout-menu-button justify-center" style="padding: 7.7px" rounded text
+            <Button class="m-0 layout-menu-button justify-center focus:shadow-none" rounded style="padding: 7.7px" text
                 @click="switchDarkTheme()">
                 <img :src="logoUrl" alt="s" height="20" width="20" />
             </Button>

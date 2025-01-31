@@ -89,10 +89,6 @@
             &:hover {
                 background-color: var(--surface-hover);
             }
-
-            &:focus {
-                @include mixins.focused-inset();
-            }
         }
 
         ul {
