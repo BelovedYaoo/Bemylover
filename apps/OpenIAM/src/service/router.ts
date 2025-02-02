@@ -25,8 +25,7 @@ const router = createRouter({
             props: () => ({
                 appTopbar: AppTopbar,
                 appSidebar: AppSidebar,
-                appFooter: AppFooter,
-                isFlex: ['appControl'],
+                appFooter: AppFooter
             }),
             children: [
                 {

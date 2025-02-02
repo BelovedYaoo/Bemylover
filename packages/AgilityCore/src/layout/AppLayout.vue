@@ -1,73 +1,22 @@
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import type { Component } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useLayout } from '../service/layout';
-import { useRoute } from 'vue-router';
-import { StoreStateInterface, useAgilityCoreStore } from '../service/store';
-import { storeToRefs } from 'pinia';
+import { useAgilityCoreStore } from '../service/store';
 
 interface AppLayoutProps {
-    appTopbar: any,
-    appSidebar: any,
-    appFooter: any,
-    isFlex: string[]
+    appTopbar: Component,
+    appSidebar: Component,
+    appFooter: Component
 }
 
 const props = defineProps<AppLayoutProps>();
 
-const route = useRoute();
-
 const store = useAgilityCoreStore();
 
-const {windowWidth, windowHeight, flexEnable} = storeToRefs<StoreStateInterface>(store);
-
-// 屏幕尺寸监听
-const getWindowResize = function () {
-    windowWidth.value = window.innerWidth;
-    windowHeight.value = window.innerHeight;
-};
-
-// 挂载时监听屏幕尺寸变化
+// 监听屏幕尺寸变化
 onMounted(() => {
-    window.addEventListener('resize', getWindowResize);
-});
-
-// 卸载时移除监听
-onUnmounted(() => {
-    window.removeEventListener('resize', getWindowResize);
-});
-
-// 启用 Flex 布局所需的最低宽度
-const flexMinWidth = ref(575);
-
-// 当前路由是否处于 Flex 布局启用名单
-const inFlex = computed(() => {
-    return props.isFlex.some((name) => name === route.name);
-});
-
-// 是否启用 Flex 布局
-flexEnable.value = computed(() => {
-    return inFlex.value && windowWidth.value > flexMinWidth.value;
-});
-
-// 屏幕宽度监听
-watch(windowWidth, (newVal) => {
-    // 当前路由处于 Flex 布局启用名单中时
-    if (inFlex.value) {
-        // 当屏幕宽度小于启用 Flex 布局所需的最低宽度时，移除 Flex 布局，否则启用 Flex 布局
-        if (newVal < flexMinWidth.value) {
-            document.querySelector('.layout-main')?.classList.remove('flex');
-        } else {
-            document.querySelector('.layout-main')?.classList.add('flex');
-        }
-    }
-});
-
-// 布局容器动态类
-const mainClass = computed(() => {
-    return {
-        // Flex 布局
-        flex: flexEnable.value
-    };
+    store.initWindowListener();
 });
 
 const containerClass = computed(() => {
@@ -135,7 +84,7 @@ const isOutsideClicked = (event: PointerEvent) => {
             <Component :is="props.appSidebar"/>
         </div>
         <div class="layout-main-container">
-            <div :class="mainClass" class="layout-main">
+            <div class="layout-main">
                 <router-view/>
             </div>
             <Component :is="props.appFooter"/>
