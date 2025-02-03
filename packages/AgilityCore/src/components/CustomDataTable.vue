@@ -11,18 +11,18 @@ import { useLayout } from '../service/layout';
 import { StoreStateInterface, useAgilityCoreStore } from '../service/store';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
-import { BaseFiled } from '../types/base';
+import { IBaseFiled } from '../types/base';
 
 const toast = useToast();
 
 interface customTableProps {
     tableName: string,
-    tableData: Array<BaseFiled> | undefined,
+    tableData: Array<IBaseFiled> | undefined,
     onTableDataRefresh: () => void,
     onRowReorder: (event: DataTableRowReorderEvent) => void,
-    onRowUpdateOrAdd: (record: BaseFiled) => void,
-    onRowDelete: (record: BaseFiled[]) => void,
-    onOrderSwap: (record: BaseFiled[]) => void,
+    onRowUpdateOrAdd: (record: IBaseFiled) => void,
+    onRowDelete: (record: IBaseFiled[]) => void,
+    onOrderSwap: (record: IBaseFiled[]) => void,
 }
 
 const props = defineProps<customTableProps>();
@@ -178,12 +178,12 @@ const onTableDataRefresh = () => {
 };
 
 // 修改或新增逻辑
-const updateOrAddRecord = (record: BaseFiled) => {
+const updateOrAddRecord = (record: IBaseFiled) => {
     props.onRowUpdateOrAdd(record);
 };
 
 // 删除逻辑
-const deleteRecords = (deleteRecords: BaseFiled[]) => {
+const deleteRecords = (deleteRecords: IBaseFiled[]) => {
     props.onRowDelete(deleteRecords);
     // 从 selectedRecords 中去掉 deleteRecords 中的
     selectedRecords.value = selectedRecords.value.filter(selectedRecord => !deleteRecords.includes(selectedRecord));
@@ -211,7 +211,7 @@ const onRowReorder = (event: DataTableRowReorderEvent) => {
 };
 
 // 顺序交换逻辑
-const orderSwap = (swapRecords: BaseFiled[]) => {
+const orderSwap = (swapRecords: IBaseFiled[]) => {
     props.onOrderSwap(swapRecords);
     selectedRecords.value = [];
 };

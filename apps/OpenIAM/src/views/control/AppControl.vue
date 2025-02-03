@@ -1,13 +1,13 @@
-<!--suppress VueUnrecognizedDirective -->
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import request from '@/service/request';
-import { AxiosResponse } from 'axios';
-import { BaseFiled } from 'agility-core/src/types/base';
+import { queryAll, update } from '@/service/request';
+import { IBaseFiled } from 'agility-core/src/types/base';
 import { StoreStateInterface, useAgilityCoreStore } from 'agility-core/src/service/store';
+import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { storeToRefs } from 'pinia';
+import { useToast } from 'primevue/usetoast';
 
-interface IAuthApp extends BaseFiled {
+interface IAuthApp extends IBaseFiled {
     clientName: string;
     clientId: string;
     clientSecret: string;
@@ -26,7 +26,9 @@ const selectedAuthApp = ref<IAuthApp | null>(null);
 const searchQuery = ref('');
 const enableClientEdit = ref(false);
 const store = useAgilityCoreStore();
-const {inSM} = storeToRefs<StoreStateInterface>(store);
+const {inMD} = storeToRefs<StoreStateInterface>(store);
+const isSaving = ref(false);
+const toast = useToast();
 
 // 计算属性过滤列表
 const filteredApps = computed(() => {
@@ -46,11 +48,8 @@ onMounted(() => {
 
 // 数据初始化
 const dataInit = () => {
-    request({
-        url: '/authApp/queryAll',
-        method: 'GET'
-    }).then((response: AxiosResponse) => {
-        authAppList.value = response.data.data as Array<IAuthApp>;
+    queryAll<IAuthApp>('authApp').then(response => {
+        authAppList.value = response.data.data;
         if (authAppList.value.length > 0) {
             selectApp(authAppList.value[0]);
         }
@@ -75,13 +74,58 @@ const revertChanges = () => {
         selectedAuthApp.value = JSON.parse(JSON.stringify(originalApp));
     }
 };
+
+const generateRandomSecret = (length = 32) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+=';
+    const crypto = window.crypto || (window as any).msCrypto;
+    const values = new Uint32Array(length);
+    crypto.getRandomValues(values);
+
+    return Array.from(values)
+        .map(x => chars[x % chars.length])
+        .join('');
+};
+
+const generateNewSecret = () => {
+    if (!selectedAuthApp.value) return;
+    selectedAuthApp.value.clientSecret = generateRandomSecret();
+};
+
+const handleSave = async () => {
+    if (!selectedAuthApp.value || !isDirty.value) return;
+    isSaving.value = true;
+    update<IAuthApp>('authApp', selectedAuthApp.value)
+        .then(response => {
+            if (response.data.code === 200) {
+                // 更新本地数据
+                const index = authAppList.value.findIndex(a => a.clientId === selectedAuthApp.value!.clientId);
+                if (index !== -1) {
+                    authAppList.value[index] = {...selectedAuthApp.value};
+                }
+                toast.add(responseToastConfig(response));
+            } else {
+                throw new Error(response.data.description || '未知错误');
+            }
+        })
+        .catch(error => {
+            toast.add({
+                severity: 'error',
+                summary: '保存失败',
+                detail: error.response?.data?.description || error.message || '请求处理失败',
+                life: 5000
+            });
+        })
+        .finally(() => {
+            isSaving.value = false;
+        });
+};
 </script>
 
 <template>
-    <div class="flex flex-column sm:flex-row h-full w-full justify-content-center">
-        <div class="col-12 sm:col-5 lg:col-4 xl:col-3 max-w-screen sm:max-w-20rem">
-            <div class="card flex flex-column max-h-30rem sm:max-h-full sm:h-full">
-                <div class="flex flex-column sm:flex-row">
+    <div class="flex flex-column md:flex-row h-full w-full justify-content-center">
+        <div class="col-12 md:col-4 xl:col-3 max-w-screen md:max-w-20rem">
+            <div class="card flex flex-column max-h-30rem md:max-h-full md:h-full">
+                <div class="flex flex-column md:flex-row">
                     <div class="flex align-items-center flex-1 gap-2 mb-4">
                         <div class="p-input-icon-left flex-1">
                             <i class="pi pi-search"/>
@@ -117,13 +161,13 @@ const revertChanges = () => {
             </div>
         </div>
         <div v-if="selectedAuthApp" :style="{
-    maxWidth: inSM ? 'none' : '90rem'
-  }" class="col-12 sm:col-7 lg:col-8 xl:col-9 h-full">
+    maxWidth: inMD ? 'none' : '90rem'
+  }" class="col-12 md:col-8 xl:col-9 h-full">
             <div class="card h-full py-3">
                 <TabView :pt="{
         panelContainer: 'flex min-h-0'
     }" :style="{
-                    maxHeight: inSM ? 'none' : 'calc(100vh - 4rem)'
+                    maxHeight: inMD ? 'none' : 'calc(100vh - 4rem)'
     }" class="flex flex-column h-full">
                     <TabPanel :pt="{
         content: 'grid w-full min-h-0 overflow-y-auto'
@@ -144,22 +188,25 @@ const revertChanges = () => {
                             <label for="clientId">应用ID</label>
                             <InputText id="clientId" v-model="selectedAuthApp.clientId" :disabled="!enableClientEdit"/>
                         </div>
-                        <div class="flex flex-column col-12 xl:col-8 gap-0 md:gap-2 py-3">
+                        <div class="flex flex-column col-12 xl:col-8 py-2">
                             <div class="flex align-items-center justify-content-between mb-2">
-                                <label for="clientId">应用密钥：</label>
-                                <i v-if="enableClientEdit" v-tooltip.bottom="'这将随机生成新的密钥，请妥善保存。'"
-                                   class="pi pi-refresh pl-1 md:pl-3 flex-shrink-0"/>
+                                <label for="clientId">应用密钥</label>
+                                <i v-if="enableClientEdit"
+                                   v-tooltip.bottom="'这将随机生成新的密钥，但并不会立即保存。'"
+                                   class="pi pi-refresh pr-2 flex-shrink-0"
+                                   @click="generateNewSecret"/>
                             </div>
-                            <Password id="clientSecret" v-model="selectedAuthApp.clientSecret" :disabled="!enableClientEdit"
+                            <Password id="clientSecret" v-model="selectedAuthApp.clientSecret"
+                                      :disabled="!enableClientEdit"
                                       :pt="{
                                 input: 'flex-1'
                             }" toggleMask type="text">
                                 <template #content>
-                                    <h6 class="pb-0 mb-0">{{ data.dataAnnotation }}</h6>
+                                    <h6 class="pb-0 mb-0">应用密钥为识别应用身份的重要凭据，请妥善保存。</h6>
                                 </template>
                             </Password>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 pt-4">
                             <div class="flex gap-3">
                                 <div v-tooltip.bottom="isDirty? '有修改未保存' : ''">
                                     <Button
@@ -169,22 +216,24 @@ const revertChanges = () => {
                                         @click="enableClientEdit = !enableClientEdit"
                                     />
                                 </div>
-                                <div v-tooltip.bottom="isDirty? '' : '内容未修改'">
+                                <div v-tooltip.bottom="isDirty? '撤销所有修改' : '内容未修改'">
                                     <Button
                                         v-if="enableClientEdit"
                                         :disabled="!isDirty"
                                         icon="pi pi-undo"
                                         label="重置"
+                                        severity="secondary"
                                         @click="revertChanges"
                                     />
                                 </div>
                                 <div v-tooltip.bottom="isDirty? '' : '内容未修改'">
                                     <Button
                                         v-if="enableClientEdit"
-                                        :disabled="!isDirty"
-                                        icon="pi pi-check"
-                                        label="保存"
-                                        severity="success"/>
+                                        :disabled="!isDirty || isSaving"
+                                        :icon="isSaving ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
+                                        :label="isSaving ? '保存中...' : '保存'"
+                                        severity="success"
+                                        @click="handleSave"/>
                                 </div>
                             </div>
                         </div>

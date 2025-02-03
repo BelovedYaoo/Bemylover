@@ -3,11 +3,11 @@ import { onBeforeMount, ref } from 'vue';
 import CustomDataTable from 'agility-core/src/components/CustomDataTable.vue';
 import { DataTableRowReorderEvent } from 'primevue/datatable';
 import { ColumnProps } from 'primevue/column';
-import request from '@/service/request';
+import { del, orderSwap, queryAll, reorder, request } from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
-import { Account } from '@/typing/types/type';
+import { IUser } from '@/typing/types/type';
 import { sha256 } from 'hash.js';
 
 const toast = useToast();
@@ -17,23 +17,16 @@ onBeforeMount(() => {
 });
 
 // 数据初始化
-const tableData = ref<Account[]>([]);
+const tableData = ref<IUser[]>([]);
 const dataInit = () => {
-    request({
-        url: '/user/queryAll',
-        method: 'GET'
-    }).then((response: AxiosResponse) => {
-        tableData.value = response.data.data as Array<Account>;
+    queryAll<IUser>('user').then(response => {
+        tableData.value = response.data.data;
     });
 };
 
 // 删除逻辑
-const onRowDelete = (records: Account[]) => {
-    request({
-        url: '/user/delete',
-        method: 'POST',
-        data: records.map(r => r.baseId)
-    }).then((response: AxiosResponse) => {
+const onRowDelete = (records: IUser[]) => {
+    del('user', records.map(r => r.baseId)).then(response => {
         toast.add(responseToastConfig(response));
         dataInit();
     });
@@ -42,16 +35,10 @@ const onRowDelete = (records: Account[]) => {
 // 行重新排序事件
 const onRowReorder = (event: DataTableRowReorderEvent) => {
     const {dragIndex, dropIndex} = event;
-    request({
-        url: '/user/reorder',
-        method: 'POST',
-        params: {
-            leftTarget: tableData.value[dragIndex].orderNum,
-            rightTarget: tableData.value[dropIndex].orderNum
-        }
-    }).then((response: AxiosResponse) => {
-        toast.add(responseToastConfig(response));
-    });
+    reorder('user', tableData.value[dragIndex].orderNum, tableData.value[dropIndex].orderNum)
+        .then((response: AxiosResponse) => {
+            toast.add(responseToastConfig(response));
+        });
     tableData.value = event.value;
 };
 
@@ -61,17 +48,8 @@ const onTableDataRefresh = () => {
 };
 
 // 顺序交换逻辑
-const onOrderSwap = (swapRecords: Account[]) => {
-    request({
-        url: '/user/orderSwap',
-        method: 'POST',
-        params: {
-            leftTargetBaseId: swapRecords[0].baseId,
-            leftTargetOrderNum: swapRecords[0].orderNum,
-            rightTargetBaseId: swapRecords[1].baseId,
-            rightTargetOrderNum: swapRecords[1].orderNum
-        }
-    }).then((response: AxiosResponse) => {
+const onOrderSwap = (swapRecords: IUser[]) => {
+    orderSwap('user', swapRecords[0].baseId, swapRecords[0].orderNum, swapRecords[1].baseId, swapRecords[1].orderNum).then((response: AxiosResponse) => {
         toast.add(responseToastConfig(response));
         dataInit();
     });
@@ -79,8 +57,8 @@ const onOrderSwap = (swapRecords: Account[]) => {
 
 // 修改或新增逻辑
 const showInfoDialog = ref(false);
-const recordInfo = ref<Account>({});
-const onRowUpdateOrAdd = (record: Account) => {
+const recordInfo = ref<IUser>({});
+const onRowUpdateOrAdd = (record: IUser) => {
     recordInfo.value = record;
     showInfoDialog.value = true;
 };

@@ -3,11 +3,11 @@ import { onBeforeMount, ref } from 'vue';
 import CustomDataTable from 'agility-core/src/components/CustomDataTable.vue';
 import { DataTableRowReorderEvent } from 'primevue/datatable';
 import { ColumnProps } from 'primevue/column';
-import request from '@/service/request';
+import { queryAll } from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
-import { Permission } from '@/typing/types/type';
+import { IPermission } from '@/typing/types/type';
 
 const toast = useToast();
 
@@ -16,18 +16,15 @@ onBeforeMount(() => {
 });
 
 // 数据初始化
-const tableData = ref<Permission[]>([]);
+const tableData = ref<IPermission[]>([]);
 const dataInit = () => {
-    request({
-        url: '/permission/queryAll',
-        method: 'GET'
-    }).then((response: AxiosResponse) => {
-        tableData.value = response.data.data as Array<Permission>;
+    queryAll<IPermission>('permission').then(response => {
+        tableData.value = response.data.data;
     });
 };
 
 // 删除逻辑
-const onRowDelete = (records: Permission[]) => {
+const onRowDelete = (records: IPermission[]) => {
     request({
         url: '/permission/delete',
         method: 'POST',
@@ -60,7 +57,7 @@ const onTableDataRefresh = () => {
 };
 
 // 顺序交换逻辑
-const onOrderSwap = (swapRecords: Permission[]) => {
+const onOrderSwap = (swapRecords: IPermission[]) => {
     request({
         url: '/permission/orderSwap',
         method: 'POST',
@@ -78,8 +75,8 @@ const onOrderSwap = (swapRecords: Permission[]) => {
 
 // 修改或新增逻辑
 const showInfoDialog = ref(false);
-const recordInfo = ref<Permission>({});
-const onRowUpdateOrAdd = (record: Permission) => {
+const recordInfo = ref<IPermission>({});
+const onRowUpdateOrAdd = (record: IPermission) => {
     recordInfo.value = record;
     showInfoDialog.value = true;
 };

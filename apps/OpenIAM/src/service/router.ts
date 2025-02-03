@@ -13,7 +13,7 @@ import { globalConfig } from './globalQuote.ts';
 import { getParameterByName, isNotValid, isValid } from 'agility-core/src/service/toolkit';
 import cookie from 'js-cookie';
 import { AxiosResponse } from 'axios';
-import request from '@/service/request';
+import { request } from '@/service/request';
 import { ref } from 'vue';
 
 const router = createRouter({

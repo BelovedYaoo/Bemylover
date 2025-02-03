@@ -1,36 +1,36 @@
-import { BaseFiled } from 'agility-core/src/types/base';
+import { IBaseFiled } from 'agility-core/src/types/base';
 
 /**
- * (Account) 表持久化对象
+ * (User) 表持久化对象
  * @author BelovedYaoo
- * @version 1.1
+ * @version 1.2
  */
-export interface Account extends BaseFiled {
+export interface IUser extends IBaseFiled {
     openId?: string;
     password?: string;
     phone?: string;
     email?: string;
     nickname?: string;
     avatarAddress?: string;
-    roles?: Array<Role>;
+    roles?: Array<IRole>;
 }
 
-export interface Role extends BaseFiled {
+export interface IRole extends IBaseFiled {
     roleName?: string;
     roleCode?: string;
     roleDesc?: string;
-    permissions?: Array<Permission>;
+    permissions?: Array<IPermission>;
 }
 
-export interface Permission extends BaseFiled {
+export interface IPermission extends IBaseFiled {
     permissionName?: string;
     permissionCode?: string;
     permissionDesc?: string;
-    routers?: Array<Router>;
+    routers?: Array<IRouter>;
     interfaces?: Array<Interface>;
 }
 
-export interface Router extends BaseFiled {
+export interface IRouter extends IBaseFiled {
     routerName?: string;
     routerPath?: string;
     parentId?: string;
@@ -38,11 +38,4 @@ export interface Router extends BaseFiled {
     routerIcon?: string;
     componentPath?: string;
     isHidden?: boolean;
-}
-
-export interface Interface extends BaseFiled {
-    interfaceName?: string;
-    interfacePath?: string;
-    requestType?: string;
-    interfaceDesc?: string;
 }

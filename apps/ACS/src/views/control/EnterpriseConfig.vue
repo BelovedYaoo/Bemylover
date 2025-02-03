@@ -2,10 +2,10 @@
 import { onBeforeMount, ref } from 'vue';
 import request from '@/service/request';
 import { AxiosResponse } from 'axios';
-import { TenantFiled } from 'agility-core/src/types/base';
+import { ITenantFiled } from 'agility-core/src/types/base';
 import EnterpriseInput from '@/components/EnterpriseInput.vue';
 
-interface EnterpriseConfig extends TenantFiled {
+interface EnterpriseConfig extends ITenantFiled {
     corpId: string;
     agentId: string;
     secret: string;

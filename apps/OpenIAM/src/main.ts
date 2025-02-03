@@ -22,8 +22,8 @@ app.use(router);
 const rootElement = document.getElementById('app');
 if (rootElement) {
     // 添加类名
-    rootElement.classList.add('sm:h-dvh');
-    rootElement.classList.add('sm:overflow-hidden');
+    rootElement.classList.add('md:h-dvh');
+    rootElement.classList.add('md:overflow-hidden');
 }
 
 app.mount('#app');

@@ -3,11 +3,11 @@ import { onBeforeMount, ref } from 'vue';
 import CustomDataTable from 'agility-core/src/components/CustomDataTable.vue';
 import { DataTableRowReorderEvent } from 'primevue/datatable';
 import { ColumnProps } from 'primevue/column';
-import request from '@/service/request';
 import { AxiosResponse } from 'axios';
 import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
-import { Role } from '@/typing/types/type';
+import { IRole } from '@/typing/types/type';
+import { queryAll } from '@/service/request';
 
 const toast = useToast();
 
@@ -16,18 +16,15 @@ onBeforeMount(() => {
 });
 
 // 数据初始化
-const tableData = ref<Role[]>([]);
+const tableData = ref<IRole[]>([]);
 const dataInit = () => {
-    request({
-        url: '/role/queryAll',
-        method: 'GET'
-    }).then((response: AxiosResponse) => {
-        tableData.value = response.data.data as Array<Role>;
+    queryAll<IRole>('role').then(response => {
+        tableData.value = response.data.data;
     });
 };
 
 // 删除逻辑
-const onRowDelete = (records: Role[]) => {
+const onRowDelete = (records: IRole[]) => {
     request({
         url: '/role/delete',
         method: 'POST',
@@ -60,7 +57,7 @@ const onTableDataRefresh = () => {
 };
 
 // 顺序交换逻辑
-const onOrderSwap = (swapRecords: Role[]) => {
+const onOrderSwap = (swapRecords: IRole[]) => {
     request({
         url: '/role/orderSwap',
         method: 'POST',
@@ -78,8 +75,8 @@ const onOrderSwap = (swapRecords: Role[]) => {
 
 // 修改或新增逻辑
 const showInfoDialog = ref(false);
-const recordInfo = ref<Role>({});
-const onRowUpdateOrAdd = (record: Role) => {
+const recordInfo = ref<IRole>({});
+const onRowUpdateOrAdd = (record: IRole) => {
     recordInfo.value = record;
     showInfoDialog.value = true;
 };

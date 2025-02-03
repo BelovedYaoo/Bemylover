@@ -3,7 +3,7 @@
  * @author BelovedYaoo
  * @version 1.6
  */
-export interface BaseFiled {
+export interface IBaseFiled {
     baseId?: string;
     orderNum?: number;
     createTime?: Date;
@@ -19,7 +19,7 @@ export interface BaseFiled {
  * @author BelovedYaoo
  * @version 1.0
  */
-export interface TenantFiled extends BaseFiled {
+export interface ITenantFiled extends IBaseFiled {
     tenantId?: string;
 }
 

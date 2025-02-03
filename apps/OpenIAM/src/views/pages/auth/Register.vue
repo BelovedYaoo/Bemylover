@@ -5,7 +5,7 @@ import { useToast } from 'primevue/usetoast';
 import { sha256 } from 'hash.js';
 import { globalConfig } from '@/service/globalQuote';
 import { addClassById, responseToastConfig } from 'agility-core/src/service/toolkit';
-import request from '@/service/request';
+import { request } from '@/service/request';
 import LogoSvg from '@/components/LogoSvg.vue';
 import { AxiosResponse } from 'axios';
 
