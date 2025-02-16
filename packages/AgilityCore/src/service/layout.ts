@@ -17,7 +17,7 @@ const layoutState = reactive({
     configSidebarVisible: false,
     staticMenuMobileActive: false,
     menuHoverActive: false,
-    activeMenuItem: null
+    activeMenuItems: []
 });
 
 export function useLayout() {
@@ -41,7 +41,9 @@ export function useLayout() {
     };
 
     const setActiveMenuItem = (item: any) => {
-        layoutState.activeMenuItem = item.value || item;
+        const index = layoutState.activeMenuItems.indexOf(item.value);
+        // 添加新激活项或移除已存在项
+        layoutState.activeMenuItems = index === -1 ? [...layoutState.activeMenuItems, item.value] : layoutState.activeMenuItems.filter(k => k !== item.value);
     };
 
     const onMenuToggle = () => {

@@ -32,15 +32,16 @@ const itemKey = ref();
 
 onBeforeMount(() => {
     itemKey.value = props.parentItemKey ? `${props.parentItemKey  }-${  props.index}` : String(props.index);
-    const activeItem = layoutState.activeMenuItem;
-    isActiveMenu.value = activeItem === itemKey.value || activeItem.value ? activeItem.value.startsWith(`${itemKey.value  }-`) : false;
+    const activeItem = layoutState.activeMenuItems;
+    isActiveMenu.value = activeItem.value.some(item => item === itemKey.value) || activeItem.value ? activeItem.value.some(item => item.startsWith(`${itemKey.value}-`)) : false;
 });
 
 watch(
-    () => layoutState.activeMenuItem.value,
+    () => layoutState.activeMenuItems.value,
     (newVal) => {
         if (!newVal) return;
-        isActiveMenu.value = newVal === itemKey.value || newVal.startsWith(`${itemKey.value}-`);
+        // 判断一下 newVal 里面是否包含 itemKey，以及是否有以 itemKey- 开头的元素
+        isActiveMenu.value = newVal.some(item => item === itemKey.value) || newVal.some(item => item.startsWith(`${itemKey.value}-`));
     }
 );
 const itemClick = (event: MouseEvent | PointerEvent, item: any) => {
@@ -48,15 +49,11 @@ const itemClick = (event: MouseEvent | PointerEvent, item: any) => {
         event.preventDefault();
         return;
     }
-
     const { overlayMenuActive, staticMenuMobileActive } = layoutState;
-
     if ((item.to || item.url) && (staticMenuMobileActive.value || overlayMenuActive.value)) {
         onMenuToggle();
     }
-
-    const foundItemKey = item.items ? (isActiveMenu.value ? props.parentItemKey : itemKey) : itemKey.value;
-
+    const foundItemKey = item.items ? itemKey : itemKey.value;
     setActiveMenuItem(foundItemKey);
 };
 
