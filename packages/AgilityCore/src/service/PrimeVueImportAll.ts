@@ -98,7 +98,17 @@ import VirtualScroller from 'primevue/virtualscroller';
 import { App } from 'vue';
 
 export default function (app:App) {
-    app.use(PrimeVue, { ripple: true });
+    app.use(PrimeVue, {
+        ripple: true,
+        pt: {
+            toggler: {
+                ariaHidden: false
+            },
+            action: {
+                ariaHidden: false
+            },
+        }
+    });
     app.use(ToastService);
     app.use(DialogService);
     app.use(ConfirmationService);

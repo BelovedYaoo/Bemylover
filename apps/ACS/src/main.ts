@@ -16,4 +16,13 @@ PrimeVueImportAll(app);
 app.use(pinia);
 app.use(router);
 
+// -------------------------------
+// 关键操作：修改挂载点元素
+// -------------------------------
+const rootElement = document.getElementById('app');
+if (rootElement) {
+    rootElement.classList.add('md:overflow-hidden');
+    rootElement.style.height = '100dvh';
+}
+
 app.mount('#app');

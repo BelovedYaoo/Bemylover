@@ -164,14 +164,6 @@ const menuModel = computed(() => {
         ] : []);
 });
 
-// 移除右键菜单的隐藏元素
-const onContextMenuShow = () => {
-    const menuLinks = document.getElementsByClassName('p-menuitem-link');
-    for (let i = 0; i < menuLinks.length; i++) {
-        menuLinks[i].removeAttribute('aria-hidden');
-    }
-};
-
 // 刷新逻辑
 const onTableDataRefresh = () => {
     props.onTableDataRefresh();
@@ -219,7 +211,7 @@ const orderSwap = (swapRecords: IBaseFiled[]) => {
 </script>
 
 <template>
-    <ContextMenu ref="cm" :model="menuModel" @show="onContextMenuShow"/>
+    <ContextMenu ref="cm" :model="menuModel"/>
     <DataTable ref="dataTable"
                v-model:contextMenuSelection="contextMenuSelection"
                v-model:selection="selectedRecords"

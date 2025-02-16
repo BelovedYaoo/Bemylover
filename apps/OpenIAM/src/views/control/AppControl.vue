@@ -160,11 +160,11 @@ const handleSave = async () => {
                 </ScrollPanel>
             </div>
         </div>
-        <div v-if="selectedAuthApp" :style="{
+        <div :style="{
     maxWidth: inMD ? 'none' : '90rem'
   }" class="col-12 md:col-8 xl:col-9 h-full">
             <div class="card h-full py-3">
-                <TabView :pt="{
+                <TabView v-if="selectedAuthApp" :pt="{
         panelContainer: 'flex min-h-0'
     }" :style="{
                     maxHeight: inMD ? 'none' : 'calc(100vh - 4rem)'

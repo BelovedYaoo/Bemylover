@@ -138,7 +138,7 @@ const code = () => {
                     </div>
                     <div class="pt-3">
                         <span class="p-float-label mb-5">
-                            <InputText id="openId" v-model="openId" class="w-full p-3"
+                            <InputText id="openId" v-model="openId" autofocus class="w-full p-3"
                                        @blur="openIdIsFocus = false" @focus="openIdIsFocus = true"/>
                             <label
                                 :class="{ 'text-600': openIdIsFocus || openId.length > 0, 'text-500': !openIdIsFocus }"

@@ -7,7 +7,7 @@ import { AxiosResponse } from 'axios';
 import { responseToastConfig } from 'agility-core/src/service/toolkit';
 import { useToast } from 'primevue/usetoast';
 import { IRole } from '@/typing/types/type';
-import { queryAll } from '@/service/request';
+import { queryAll, request } from '@/service/request';
 
 const toast = useToast();
 
