@@ -53,8 +53,8 @@ const itemClick = (event: MouseEvent | PointerEvent, item: any) => {
     if ((item.to || item.url) && (staticMenuMobileActive.value || overlayMenuActive.value)) {
         onMenuToggle();
     }
-    const foundItemKey = item.items ? itemKey : itemKey.value;
-    setActiveMenuItem(foundItemKey);
+    // 根据 当前项是否具有子项 来决定操作，激活当前操作项 或 移除激活项 或 不进行操作
+    setActiveMenuItem(itemKey, item.items !== undefined);
 };
 
 const checkActiveRoute = (item: any) => {

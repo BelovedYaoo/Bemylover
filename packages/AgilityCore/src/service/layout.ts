@@ -1,4 +1,5 @@
 import { computed, reactive, toRefs } from 'vue';
+import { LG } from './store';
 
 const layoutConfig = reactive({
     // 按钮的涟漪效果
@@ -40,10 +41,19 @@ export function useLayout() {
         layoutConfig.scale = scale;
     };
 
-    const setActiveMenuItem = (item: any) => {
+    const setActiveMenuItem = (item: any, allowRemove: boolean) => {
         const index = layoutState.activeMenuItems.indexOf(item.value);
-        // 添加新激活项或移除已存在项
-        layoutState.activeMenuItems = index === -1 ? [...layoutState.activeMenuItems, item.value] : layoutState.activeMenuItems.filter(k => k !== item.value);
+        // 如果新操作项是已激活项，且允许移除已激活项，则移除已激活项
+        if (index !== -1 && allowRemove) {
+            layoutState.activeMenuItems = layoutState.activeMenuItems.filter(k => k !== item.value);
+            return;
+        }
+        // 如果已激活项是新操作项的子项，则不激活新操作项
+        if (layoutState.activeMenuItems.some(k => item.value.startsWith(k))) {
+            return;
+        }
+        // 激活新操作项
+        layoutState.activeMenuItems = [...layoutState.activeMenuItems, item.value];
     };
 
     const onMenuToggle = () => {
@@ -51,7 +61,7 @@ export function useLayout() {
             layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
         }
 
-        if (window.innerWidth > 991) {
+        if (window.innerWidth > LG) {
             layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
         } else {
             layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
