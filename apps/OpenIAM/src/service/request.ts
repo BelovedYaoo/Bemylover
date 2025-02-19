@@ -5,6 +5,11 @@ import { globalConfig, signOut } from './globalQuote';
 import { getParameterByName, isValid } from 'agility-core/src/service/toolkit';
 import { IBaseFiled } from 'agility-core/src/types/base';
 
+/**
+ * 请求结果封装
+ * @author BelovedYaoo
+ * @version 1.0.0
+ */
 interface IResult<T = any> {
     code: number
     message: string
@@ -13,10 +18,73 @@ interface IResult<T = any> {
     data?: T
 }
 
+/**
+ * 请求配置封装
+ * @author BelovedYaoo
+ * @version 1.0.0
+ */
 interface RequestConfig extends AxiosRequestConfig {
     module?: string
 }
 
+/**
+ * 请求封装
+ * @author BelovedYaoo
+ * @version 1.0.0
+ */
+class RequestWrapper<T = any> {
+    private promise: Promise<AxiosResponse<IResult<T>>>;
+
+    constructor(promise: Promise<AxiosResponse<IResult<T>>>) {
+        this.promise = promise;
+    }
+
+    success(callback: (response: AxiosResponse<IResult<T>>) => void): RequestWrapper<T> {
+        const newPromise: Promise<AxiosResponse<IResult<T>>> = this.promise.then((response: AxiosResponse<IResult<T>, any>) => {
+            if (response.data.code === 200) {
+                callback(response);
+            }
+            return response;
+        });
+        return new RequestWrapper<T>(newPromise);
+    }
+
+    failed(callback: (response: AxiosResponse<IResult<T>>) => void): RequestWrapper<T> {
+        const newPromise: Promise<AxiosResponse<IResult<T>>> = this.promise.then((response: AxiosResponse<IResult<T>, any>) => {
+            if (response.data.code === 400) {
+                callback(response);
+            }
+            return response;
+        });
+        return new RequestWrapper<T>(newPromise);
+    }
+
+    then<TResult1 = AxiosResponse<IResult<T>>, TResult2 = never>(
+        onFulfilled?: (value: AxiosResponse<IResult<T>>) => TResult1 | PromiseLike<TResult1>,
+        onRejected?: (reason: any) => TResult2 | PromiseLike<TResult2>
+    ): RequestWrapper<TResult1 | TResult2> {
+        const newPromise: Promise<TResult1 | TResult2> = this.promise.then(onFulfilled, onRejected);
+        return new RequestWrapper<TResult1 | TResult2>(newPromise);
+    }
+
+    catch<TResult = never>(
+        onRejected?: (reason: any) => TResult | PromiseLike<TResult>
+    ): RequestWrapper<T | TResult> {
+        const newPromise: Promise<TResult | AxiosResponse<IResult<T>, any>> = this.promise.catch(onRejected);
+        return new RequestWrapper<T | TResult>(newPromise);
+    }
+
+    finally(onFinally?: () => void): RequestWrapper<T> {
+        const newPromise: Promise<AxiosResponse<IResult<T>, any>> = this.promise.finally(onFinally);
+        return new RequestWrapper<T>(newPromise);
+    }
+}
+
+/**
+ * Axios封装
+ * @author BelovedYaoo
+ * @version 1.0.0
+ */
 class ApiClient {
     private instance: AxiosInstance;
     private baseURL: string = import.meta.env.VITE_API_BASE_URL;
@@ -31,60 +99,74 @@ class ApiClient {
         this.setupInterceptors();
     }
 
-    public async request<T = any>(config: RequestConfig): Promise<AxiosResponse<IResult<T>>> {
+    public request<T = any>(config: RequestConfig): RequestWrapper<T> {
         try {
-            return await this.instance.request<IResult<T>>(config);
+            return new RequestWrapper<T>(
+                this.instance.request<IResult<T>>(config)
+            );
         } catch (error) {
             console.error('API Request Error:', error);
-            throw error;
+            return new RequestWrapper<T>(Promise.reject(error));
         }
     }
 
     public operate(moduleName: string) {
         return {
             queryAll: <T extends IBaseFiled>() =>
-                this.request<T[]>({
-                    method: 'GET',
-                    url: `/${moduleName}/queryAll`
-                }),
+                new RequestWrapper<T[]>(
+                    this.request<T[]>({
+                        method: 'GET',
+                        url: `/${moduleName}/queryAll`
+                    })
+                ),
             add: <T extends IBaseFiled>(data: T) =>
-                this.request({
-                    method: 'POST',
-                    url: `/${moduleName}/add`,
-                    data: data
-                }),
+                new RequestWrapper<T>(
+                    this.request<T>({
+                        method: 'POST',
+                        url: `/${moduleName}/add`,
+                        data: data
+                    })
+                ),
             update: <T extends IBaseFiled>(data: T) =>
-                this.request({
-                    method: 'POST',
-                    url: `/${moduleName}/update`,
-                    data: data
-                }),
+                new RequestWrapper<T>(
+                    this.request<T>({
+                        method: 'POST',
+                        url: `/${moduleName}/update`,
+                        data: data
+                    })
+                ),
             delete: (id: string[]) =>
-                this.request({
-                    method: 'POST',
-                    url: `/${moduleName}/delete`,
-                    data: id
-                }),
+                new RequestWrapper<T>(
+                    this.request<T>({
+                        method: 'POST',
+                        url: `/${moduleName}/delete`,
+                        data: id
+                    })
+                ),
             reorder: (leftTarget: string, rightTarget: string) =>
-                this.request({
-                    method: 'POST',
-                    url: `/${moduleName}/reorder`,
-                    params: {
-                        leftTarget: leftTarget,
-                        rightTarget: rightTarget
-                    }
-                }),
+                new RequestWrapper(
+                    this.request({
+                        method: 'POST',
+                        url: `/${moduleName}/reorder`,
+                        params: {
+                            leftTarget: leftTarget,
+                            rightTarget: rightTarget
+                        }
+                    })
+                ),
             orderSwap: (leftTargetBaseId: string, leftTargetOrderNum: string, rightTargetBaseId: string, rightTargetOrderNum: string) =>
-                this.request({
-                    method: 'POST',
-                    url: `/${moduleName}/orderSwap`,
-                    params: {
-                        leftTargetBaseId: leftTargetBaseId,
-                        leftTargetOrderNum: leftTargetOrderNum,
-                        rightTargetBaseId: rightTargetBaseId,
-                        rightTargetOrderNum: rightTargetOrderNum
-                    }
-                })
+                new RequestWrapper(
+                    this.request({
+                        method: 'POST',
+                        url: `/${moduleName}/orderSwap`,
+                        params: {
+                            leftTargetBaseId: leftTargetBaseId,
+                            leftTargetOrderNum: leftTargetOrderNum,
+                            rightTargetBaseId: rightTargetBaseId,
+                            rightTargetOrderNum: rightTargetOrderNum
+                        }
+                    })
+                )
         };
     }
 
@@ -128,6 +210,11 @@ class ApiClient {
                     }
                 });
                 break;
+            case 902:
+                router.push({
+                    path: '/access'
+                });
+                break;
         }
         return response;
     }
@@ -140,7 +227,8 @@ class ApiClient {
 // 创建单例实例
 const apiClient = new ApiClient();
 // 核心请求方法
-export const request = apiClient.request.bind(apiClient);
+export const request: <T = any>(config: RequestConfig) => RequestWrapper<T> =
+    apiClient.request.bind(apiClient);
 // 快捷方法
 export const queryAll = <T extends IBaseFiled>(moduleName: string) =>
     apiClient.operate(moduleName).queryAll<T>();
@@ -155,4 +243,4 @@ export const reorder = (moduleName: string, leftTarget: string, rightTarget: str
 export const orderSwap = (moduleName: string, leftTargetBaseId: string, leftTargetOrderNum: string, rightTargetBaseId: string, rightTargetOrderNum: string) =>
     apiClient.operate(moduleName).orderSwap(leftTargetBaseId, leftTargetOrderNum, rightTargetBaseId, rightTargetOrderNum);
 // 保留原始实例导出
-export const http = apiClient;
+export const http: ApiClient = apiClient;
