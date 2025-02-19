@@ -7,6 +7,7 @@ import { resolve } from 'path';
 export default defineConfig({
         server: {
             port: 9036,
+            allowedHosts: ['openiam.top']
         //     proxy: {
         //         // 韩小韩Api
         //         '/vvhan': {

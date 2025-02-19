@@ -7,6 +7,7 @@ export default defineConfig(() => {
     return {
         server: {
             port: 132,
+            allowedHosts: ['acs.top']
         },
         plugins: [
             vue(),
