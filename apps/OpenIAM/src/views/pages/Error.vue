@@ -1,13 +1,24 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useLayout } from 'agility-core/src/service/layout';
-import router from "@/service/router";
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import router from '@/service/router';
 
-const { isDarkTheme } = useLayout();
+const {isDarkTheme} = useLayout();
+const route = useRoute();
 
 const getAlpha = () => {
     const alpha = isDarkTheme.value ? 0.9 : 0.4;
     return `background: linear-gradient(180deg, rgba(233, 30, 99, ${alpha}) 10%, rgba(33, 150, 243, 0) 30%)`;
 };
+
+// 获取退回步数（带默认值）
+const backSteps = computed(() => {
+    // 默认退回 1 步
+    const steps = -Number(route.query.backSteps) || -1;
+    // 确保至少退回 1 步
+    return Math.min(-1, steps);
+});
 </script>
 
 <template>
@@ -26,7 +37,7 @@ const getAlpha = () => {
                         <span class="text-600 mb-5 mt-2">请求的资源不可用</span>
                         <img alt="Error" class="mb-5" src="/images/error.svg" width="80%"/>
                         <Button class="text-blue-500" icon="pi pi-arrow-left" label="返回" link
-                                @click="router.go(-1)"></Button>
+                                @click="router.go(backSteps)"/>
                     </div>
                 </div>
             </div>

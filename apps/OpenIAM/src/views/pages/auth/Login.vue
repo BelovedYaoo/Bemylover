@@ -118,7 +118,10 @@ const code = () => {
                 }
             });
         } else if (res.data.code === 902) {
-            router.push('/access').then(() => {
+            router.push({
+                path: '/access',
+                query: {backSteps: 2}
+            }).then(() => {
                 toast.add(responseToastConfig(res));
             });
         }

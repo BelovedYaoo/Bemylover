@@ -1,13 +1,24 @@
 <script lang="ts" setup>
 import { useLayout } from 'agility-core/src/service/layout';
 import router from '@/service/router';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const {isDarkTheme} = useLayout();
+const route = useRoute();
 
 const getAlpha = () => {
     const alpha = isDarkTheme.value ? 0.8 : 0.4;
     return `background: linear-gradient(180deg, rgba(247, 149, 48, ${alpha}) 10%, rgba(247, 149, 48, 0) 30%)`;
 };
+
+// 获取退回步数（带默认值）
+const backSteps = computed(() => {
+    // 默认退回 1 步
+    const steps = -Number(route.query.backSteps) || -1;
+    // 确保至少退回 1 步
+    return Math.min(-1, steps);
+});
 </script>
 
 <template>
@@ -26,7 +37,7 @@ const getAlpha = () => {
                         <span class="text-600 mb-5 mt-2">您没有必要的权限，请联系管理员</span>
                         <img alt="Access denied" class="mb-1" src="/images/access.svg" width="80%"/>
                         <Button class="text-blue-500" icon="pi pi-arrow-left" label="返回" link
-                                @click="router.go(-2)"></Button>
+                                @click="router.go(backSteps)"/>
                     </div>
                 </div>
             </div>
