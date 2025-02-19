@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLayout } from 'agility-core/src/service/layout';
+import router from "@/service/router";
 
 const { isDarkTheme } = useLayout();
 
@@ -25,10 +26,8 @@ const getAlpha = () => {
                         <h1 class="text-900 font-bold text-5xl mb-2 mt-2">Not Found</h1>
                         <span class="text-600 mb-5 mt-2">请求的资源不存在</span>
                         <img alt="Error" class="mb-5" src="/images/notfound.svg" width="80%"/>
-                        <div class="col-12 mt-5 text-center">
-                            <i class="pi pi-fw pi-arrow-left text-blue-500 mr-2" style="vertical-align: center"></i>
-                            <router-link class="text-blue-500" to="/">返回主页面</router-link>
-                        </div>
+                        <Button class="text-blue-500" icon="pi pi-arrow-left" label="返回" link
+                                @click="router.go(-1)"></Button>
                     </div>
                 </div>
             </div>

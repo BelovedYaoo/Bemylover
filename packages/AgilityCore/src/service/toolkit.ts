@@ -1,5 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { ToastMessageOptions } from 'primevue/toast';
+import { ITree } from '../types/base';
+import { ITreeNode } from '../types/core';
 
 /**
  * 将Axios请求响应体转换为PrimeVue的Toast配置
@@ -44,6 +46,44 @@ export const getParameterByName = (name: string, url: string = window.location.h
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+
+/**
+ * 将扁平化的 ITree 数据转换为层级化的 PrimeVue Tree 节点
+ * @param trees 扁平节点列表
+ * @param labelField 节点显示文本字段
+ * @returns 层级化的 ITreeNode 数组
+ */
+export function Tree2TreeNode<T extends ITree>(
+    trees: T[],
+    labelField: keyof T
+): ITreeNode<T>[] {
+    // 预处理所有节点：创建映射表
+    const nodeMap: Record<string, ITreeNode<T>> = {};
+    const roots: ITreeNode<T>[] = [];
+    trees.forEach((node: T): void => {
+        // 创建 PrimeVue 节点并加入映射表
+        nodeMap[node.baseId] = {
+            key: node.baseId,
+            label: node[labelField] as string,
+            // 保留原始数据并标准化 parentId
+            data: {...node},
+            // 初始化子节点容器为空
+            children: []
+        };
+    });
+    // 构建父子关系
+    trees.forEach((node: T): void => {
+        const current: ITreeNode<T> = nodeMap[node.baseId];
+        // 不为根节点，且父节点存在，则将当前节点加入其父节点的 children
+        // 否则，将当前节点加入根节点列表
+        if (!node.isRoot && node.parentId && nodeMap[node.parentId]) {
+            nodeMap[node.parentId].children!.push(current);
+        } else {
+            roots.push(current);
+        }
+    });
+    return roots;
+}
 
 /**
  * 判断参数是否不为空

@@ -7,10 +7,10 @@ export interface StoreStateInterface extends StoreGeneric {
     flexEnable: boolean
 }
 
-const SM: number = 576;
-const MD: number = 768;
-const LG: number = 992;
-const XL: number = 1200;
+export const SM: number = 576;
+export const MD: number = 768;
+export const LG: number = 992;
+export const XL: number = 1200;
 
 export const useAgilityCoreStore = defineStore('agilityCore', {
     state: (): StoreStateInterface => ({

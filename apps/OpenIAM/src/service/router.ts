@@ -56,6 +56,11 @@ const router = createRouter({
                             name: 'appControl',
                             component: () => import('@/views/control/AppControl.vue')
                         },
+                        {
+                            path: 'domainControl',
+                            name: 'domainControl',
+                            component: () => import('@/views/control/DomainControl.vue')
+                        },
                     ]
                 },
             ]
@@ -108,6 +113,7 @@ const whiteList = ref([
     'register',
     'confirm',
     'notFound',
+    'accessDenied',
     'error'
 ]);
 

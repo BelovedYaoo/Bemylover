@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { queryAll, update } from '@/service/request';
+import { add, del, queryAll, update } from '@/service/request';
 import { IBaseFiled } from 'agility-core/src/types/base';
 import { StoreStateInterface, useAgilityCoreStore } from 'agility-core/src/service/store';
-import { responseToastConfig } from 'agility-core/src/service/toolkit';
+import { addClassById, isNotValid, responseToastConfig } from 'agility-core/src/service/toolkit';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
 
@@ -29,6 +29,8 @@ const store = useAgilityCoreStore();
 const {inMD} = storeToRefs<StoreStateInterface>(store);
 const isSaving = ref(false);
 const toast = useToast();
+const showAddDialog = ref(false);
+const addApp = ref<IAuthApp>({});
 
 // 计算属性过滤列表
 const filteredApps = computed(() => {
@@ -91,21 +93,20 @@ const generateNewSecret = () => {
     selectedAuthApp.value.clientSecret = generateRandomSecret();
 };
 
-const handleSave = async () => {
+const handleUpdate = async () => {
     if (!selectedAuthApp.value || !isDirty.value) return;
     isSaving.value = true;
     update<IAuthApp>('authApp', selectedAuthApp.value)
-        .then(response => {
-            if (response.data.code === 200) {
-                // 更新本地数据
-                const index = authAppList.value.findIndex(a => a.clientId === selectedAuthApp.value!.clientId);
-                if (index !== -1) {
-                    authAppList.value[index] = {...selectedAuthApp.value};
-                }
-                toast.add(responseToastConfig(response));
-            } else {
-                throw new Error(response.data.description || '未知错误');
+        .success(response => {
+            // 更新本地数据
+            const index = authAppList.value.findIndex(a => a.clientId === selectedAuthApp.value!.clientId);
+            if (index !== -1) {
+                authAppList.value[index] = {...selectedAuthApp.value};
             }
+            toast.add(responseToastConfig(response));
+        })
+        .failed(response => {
+            throw new Error(response.data.description || '未知错误');
         })
         .catch(error => {
             toast.add({
@@ -117,6 +118,57 @@ const handleSave = async () => {
         })
         .finally(() => {
             isSaving.value = false;
+        });
+};
+
+const handleAdd = () => {
+    if (isNotValid(addApp.value.clientName)) {
+        addClassById('addClientName', 'p-invalid', 3);
+        toast.add({
+            severity: 'error',
+            summary: '添加失败',
+            detail: '请输入应用名称',
+            life: 3000
+        });
+        return;
+    }
+    if (isNotValid(addApp.value.clientId)) {
+        addClassById('addClientId', 'p-invalid', 3);
+        toast.add({
+            severity: 'error',
+            summary: '添加失败',
+            detail: '请输入应用ID',
+            life: 3000
+        });
+        return;
+    }
+    add<IAuthApp>('authApp', addApp.value)
+        .success(response => {
+            dataInit();
+            toast.add(responseToastConfig(response));
+            showAddDialog.value = false;
+        })
+        .failed(response => {
+            throw new Error(response.data.description || '未知错误');
+        })
+        .catch(error => {
+            toast.add({
+                severity: 'error',
+                summary: '保存失败',
+                detail: error.response?.data?.description || error.message || '请求处理失败',
+                life: 5000
+            });
+        });
+};
+
+const handleDelete = () => {
+    del('authApp', [selectedAuthApp.value.baseId])
+        .success(response => {
+            dataInit();
+            toast.add(responseToastConfig(response));
+        })
+        .failed(response => {
+            throw new Error(response.data.description || '未知错误');
         });
 };
 </script>
@@ -138,7 +190,7 @@ const handleSave = async () => {
                         <Button
                             class="p-button-primary white-space-nowrap"
                             icon="pi pi-plus"
-                            @click="console.log(1)"
+                            @click="showAddDialog = true"
                         />
                     </div>
                 </div>
@@ -147,12 +199,13 @@ const handleSave = async () => {
                         <div
                             v-for="app in filteredApps"
                             :key="app.clientId"
-                            :class="{ 'bg-primary-reverse': selectedAuthApp?.id === app.id }"
                             class="app-item py-2 sm:py-3 cursor-pointer border-round flex gap-3"
                             @click="selectApp(app)"
                         >
                             <div>
-                                <div class="text-xl font-bold mb-1">{{ app.clientName }}</div>
+                                <div :class="{ 'text-primary': selectedAuthApp?.clientId === app.clientId }"
+                                     class="text-xl font-bold mb-1">{{ app.clientName }}
+                                </div>
                                 <div class="text-sm text-color-secondary">{{ app.clientId }}</div>
                             </div>
                         </div>
@@ -216,9 +269,8 @@ const handleSave = async () => {
                                         @click="enableClientEdit = !enableClientEdit"
                                     />
                                 </div>
-                                <div v-tooltip.bottom="isDirty? '撤销所有修改' : '内容未修改'">
+                                <div v-if="enableClientEdit" v-tooltip.bottom="isDirty? '撤销所有修改' : '内容未修改'">
                                     <Button
-                                        v-if="enableClientEdit"
                                         :disabled="!isDirty"
                                         icon="pi pi-undo"
                                         label="重置"
@@ -226,14 +278,20 @@ const handleSave = async () => {
                                         @click="revertChanges"
                                     />
                                 </div>
-                                <div v-tooltip.bottom="isDirty? '' : '内容未修改'">
+                                <div v-if="enableClientEdit" v-tooltip.bottom="isDirty? '' : '内容未修改'">
                                     <Button
-                                        v-if="enableClientEdit"
                                         :disabled="!isDirty || isSaving"
                                         :icon="isSaving ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
                                         :label="isSaving ? '保存中...' : '保存'"
                                         severity="success"
-                                        @click="handleSave"/>
+                                        @click="handleUpdate"/>
+                                </div>
+                                <div v-tooltip.bottom="'连同域也会一起删除！'">
+                                    <Button
+                                        icon="pi pi-trash"
+                                        label="删除"
+                                        severity="danger"
+                                        @click="handleDelete"/>
                                 </div>
                             </div>
                         </div>
@@ -260,6 +318,44 @@ const handleSave = async () => {
             </div>
         </div>
     </div>
+    <Dialog v-model:visible="showAddDialog" class="p-fluid max-w-30rem min-w-min" modal>
+        <template #header>
+            <div class="p-dialog-title">新增应用</div>
+        </template>
+        <div class="field col">
+            <label>应用名称</label>
+            <InputText
+                id="addClientName"
+                v-model="addApp.clientName"
+            />
+        </div>
+        <div class="field col">
+            <label>应用ID</label>
+            <InputText
+                id="addClientId"
+                v-model="addApp.clientId"
+            />
+            <small id="clientId-help">其他参数可稍后自行设置,新增时不需要输入.</small>
+        </div>
+        <template #footer>
+            <div class="flex">
+                <div class="flex ml-auto justify-content-end">
+                    <Button
+                        class="p-button-text"
+                        icon="pi pi-times"
+                        label="取消"
+                        @click="showAddDialog = false"
+                    />
+                    <Button
+                        class="p-button-text m-0"
+                        icon="pi pi-check"
+                        label="确认"
+                        @click="handleAdd"
+                    />
+                </div>
+            </div>
+        </template>
+    </Dialog>
 </template>
 
 <style scoped>

@@ -1,10 +1,17 @@
 /**
+ * 基础ID字段
+ * @author BelovedYaoo
+ * @version 1.0
+ */
+export interface IBaseIdFiled {
+    baseId: string;
+}
+/**
  * 基础字段
  * @author BelovedYaoo
  * @version 1.6
  */
-export interface IBaseFiled {
-    baseId?: string;
+export interface IBaseFiled extends IBaseIdFiled {
     orderNum?: number;
     createTime?: Date;
     updateTime?: Date;
@@ -24,20 +31,13 @@ export interface ITenantFiled extends IBaseFiled {
 }
 
 /**
- * 菜单项
+ * 树结构基础字段
  * @author BelovedYaoo
  * @version 1.0
  */
-export interface AppMenuItem {
-    to?: string
-    items?: AppMenuItem[]
-    visible?: boolean
-    disabled?: boolean
-    class?: string
-    icon?: string
-    mdi?: string
-    label?: string
-    url?: string
-    target?: string
-    style?: string
+export interface ITree extends IBaseFiled {
+    parentId?: string;
+    treePath: string;
+    isRoot: boolean;
+    isLeaf: boolean;
 }

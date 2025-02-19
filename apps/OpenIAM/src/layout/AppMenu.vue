@@ -33,8 +33,14 @@ const model = ref([
             {
                 label: '应用管理',
                 mdi: 'mdi:table',
-                style: {width: '18px', height: '17px'},
+                style: {width: '18px', height: '18px'},
                 to: '/control/appControl'
+            },
+            {
+                label: '域管理',
+                mdi: 'mdi:table',
+                style: {width: '18px', height: '18px'},
+                to: '/control/domainControl'
             }
         ]
     },

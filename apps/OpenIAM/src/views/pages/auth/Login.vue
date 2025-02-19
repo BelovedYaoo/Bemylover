@@ -117,6 +117,10 @@ const code = () => {
                     redirect_uri: getParameterByName('redirect_uri')
                 }
             });
+        } else if (res.data.code === 902) {
+            router.push('/access').then(() => {
+                toast.add(responseToastConfig(res));
+            });
         }
     });
 };

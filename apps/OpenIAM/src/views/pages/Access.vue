@@ -1,7 +1,8 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useLayout } from 'agility-core/src/service/layout';
+import router from '@/service/router';
 
-const { isDarkTheme } = useLayout();
+const {isDarkTheme} = useLayout();
 
 const getAlpha = () => {
     const alpha = isDarkTheme.value ? 0.8 : 0.4;
@@ -24,10 +25,8 @@ const getAlpha = () => {
                         <h1 class="text-900 font-bold text-4xl lg:text-5xl mb-2">拒绝访问</h1>
                         <span class="text-600 mb-5 mt-2">您没有必要的权限，请联系管理员</span>
                         <img alt="Access denied" class="mb-1" src="/images/access.svg" width="80%"/>
-                        <div class="col-12 mt-2 text-center">
-                            <i class="pi pi-fw pi-arrow-left text-blue-500 mr-2" style="vertical-align: center"></i>
-                            <router-link class="text-blue-500" to="/">返回主页面</router-link>
-                        </div>
+                        <Button class="text-blue-500" icon="pi pi-arrow-left" label="返回" link
+                                @click="router.go(-2)"></Button>
                     </div>
                 </div>
             </div>
