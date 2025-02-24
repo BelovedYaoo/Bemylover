@@ -38,6 +38,7 @@ const onRowReorder = (event: DataTableRowReorderEvent) => {
     reorder('user', tableData.value[dragIndex].orderNum, tableData.value[dropIndex].orderNum)
         .then((response: AxiosResponse) => {
             toast.add(responseToastConfig(response));
+            dataInit();
         });
     tableData.value = event.value;
 };
@@ -49,10 +50,11 @@ const onTableDataRefresh = () => {
 
 // 顺序交换逻辑
 const onOrderSwap = (swapRecords: IUser[]) => {
-    orderSwap('user', swapRecords[0].baseId, swapRecords[0].orderNum, swapRecords[1].baseId, swapRecords[1].orderNum).then((response: AxiosResponse) => {
-        toast.add(responseToastConfig(response));
-        dataInit();
-    });
+    orderSwap('user', swapRecords[0].baseId, swapRecords[0].orderNum, swapRecords[1].baseId, swapRecords[1].orderNum)
+        .then((response: AxiosResponse) => {
+            toast.add(responseToastConfig(response));
+            dataInit();
+        });
 };
 
 // 修改或新增逻辑

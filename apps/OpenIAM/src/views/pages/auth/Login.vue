@@ -86,6 +86,10 @@ const login = () => {
 };
 
 const code = () => {
+    // 如果缺少参数
+    if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
+        return;
+    }
     alert('通过OIDC协议登录！');
     axios.request({
         headers: {
@@ -96,11 +100,11 @@ const code = () => {
         url: 'http://openiam.top:8091/oauth2/authorize',
         params: {
             // eslint-disable-next-line camelcase
-            response_type: getParameterByName('response_type'),
+            response_type: responseType.value,
             // eslint-disable-next-line camelcase
-            client_id: getParameterByName('client_id'),
+            client_id: clientId.value,
             // eslint-disable-next-line camelcase
-            redirect_uri: getParameterByName('redirect_uri'),
+            redirect_uri: redirectUri.value,
             scope: 'oidc'
         },
     }).then((res: AxiosResponse) => {
