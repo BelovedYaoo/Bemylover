@@ -3625,7 +3625,6 @@
     .p-paginator {
         background: #18181B;
         color: rgba(255, 255, 255, 0.6);
-        border: 1px solid #424b57;
         padding: 0.5rem 1rem;
         border-radius: 6px;
     }
