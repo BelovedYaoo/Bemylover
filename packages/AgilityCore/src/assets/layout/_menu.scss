@@ -35,16 +35,28 @@
       display: none;
     }
 
-    /* 选择最深的 .active-menuitem ，且有 .active-route */
-    .active-menuitem:not(:has(.active-menuitem)):has(.active-route) {
+    // 先给所有包含.active-route的父级<li>设置基础样式
+    li:has(> .active-route) {
       background-image: linear-gradient(135deg, rgb(132 112 255 / 0.12), rgb(132 112 255 / 0.04));
       border-radius: variables.$borderRadius;
+    }
+
+    // 再给符合条件的深层.active-menuitem设置更高权重的样式
+    .active-menuitem:not(:has(.active-menuitem)):has(.active-route) {
+      background-image: linear-gradient(135deg, rgb(132 112 255 / 0.16), rgb(132 112 255 / 0.08));
+      border-radius: variables.$borderRadius;
+
+      li {
+        filter: brightness(1.1);
+        background-image: none;
+      }
 
       a:hover {
         color: var(--primary-color);
-        background-color: unset;
+        background-color: transparent;
       }
     }
+
   }
 
   a {
@@ -79,7 +91,6 @@
       cursor: pointer;
       padding: 0.75rem 1rem;
       border-radius: variables.$borderRadius;
-      transition: background-color variables.$transitionDuration, box-shadow variables.$transitionDuration;
 
       .layout-menuitem-icon {
         margin-right: 0.5rem;

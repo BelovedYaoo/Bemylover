@@ -41,15 +41,15 @@ export function useLayout() {
         layoutConfig.scale = scale;
     };
 
-    const setActiveMenuItem = (item: any, allowRemove: boolean) => {
+    const setActiveMenuItem = (item: any, hasItems: boolean) => {
         const index = layoutState.activeMenuItems.indexOf(item.value);
-        // 如果新操作项是已激活项，且允许移除已激活项，则移除已激活项
-        if (index !== -1 && allowRemove) {
-            layoutState.activeMenuItems = layoutState.activeMenuItems.filter(k => k !== item.value);
+        // 如果新操作项是已激活项，且具有子项，则移除已激活项和子项
+        if (index !== -1 && hasItems) {
+            layoutState.activeMenuItems = layoutState.activeMenuItems.filter(k => !k.startsWith(item.value));
             return;
         }
-        // 如果已激活项是新操作项的子项，则不激活新操作项
-        if (layoutState.activeMenuItems.some(k => item.value.startsWith(k))) {
+        // 如果已激活项是新操作项的子项，且不具有子项，则不激活新操作项
+        if (layoutState.activeMenuItems.some(k => item.value.startsWith(k)) && !hasItems) {
             return;
         }
         // 激活新操作项

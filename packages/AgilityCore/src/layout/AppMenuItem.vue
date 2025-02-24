@@ -54,7 +54,7 @@ const itemClick = (event: MouseEvent | PointerEvent, item: any) => {
         onMenuToggle();
     }
     // 根据 当前项是否具有子项 来决定操作，激活当前操作项 或 移除激活项 或 不进行操作
-    setActiveMenuItem(itemKey, item.items !== undefined);
+    setActiveMenuItem(itemKey, item.items?.length > 0);
 };
 
 const checkActiveRoute = (item: any) => {
