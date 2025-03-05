@@ -5,9 +5,10 @@ import cookie from 'js-cookie';
 import { globalConfig } from '@/service/globalQuote';
 import { addClassById, getParameterByName, isValid, responseToastConfig } from 'agility-core/src/service/toolkit';
 import router from '@/service/router';
+import { request } from '@/service/request';
 import LogoSvg from '@/components/LogoSvg.vue';
 import YiYan from 'agility-core/src/components/YiYan.vue';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { sha256 } from 'hash.js';
 
 const toast = useToast();
@@ -16,10 +17,6 @@ const openId = ref('');
 const password = ref('');
 const remember = ref(false);
 const checked = ref(false);
-
-const responseType = ref('');
-const clientId = ref('');
-const redirectUri = ref('');
 
 const passwordIsFocus = ref(false);
 const openIdIsFocus = ref(false);
@@ -46,16 +43,9 @@ const checkRegisterAccountInfo = () => {
 };
 
 onMounted(() => {
-    const tokenValue = cookie.get('openToken');
+    const tokenValue = cookie.get(globalConfig.tokenName);
     // 如果没有Token
     if (tokenValue === '' || tokenValue === null || tokenValue === undefined) {
-        responseType.value = getParameterByName('response_type');
-        clientId.value = getParameterByName('client_id');
-        redirectUri.value = getParameterByName('redirect_uri');
-        // 如果缺少参数
-        if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
-            window.location.href = `${globalConfig.openAuthServerUrl}?response_type=code&client_id=${globalConfig.clientId}&redirect_uri=${globalConfig.indexUrl}`;
-        }
         return;
     }
     code();
@@ -67,18 +57,18 @@ const login = () => {
     if (!checked.value) {
         return;
     }
-    axios.request({
+    request({
         method: 'POST',
-        url: 'http://openiam.top:8091/oauth2/doLogin',
+        url: '/oauth2/doLogin',
         params: {
             username: openId.value,
             password: btoa(sha256().update(password.value).digest('hex'))
         }
-    }).then((res: AxiosResponse) => {
+    }).success((res: AxiosResponse) => {
         toast.add(responseToastConfig(res));
-        if (res.data.code === 200 && res.data.data.tokenValue !== null) {
+        if (isValid(res.data.data.tokenValue)) {
             // token存入cookie
-            cookie.set('openToken', res.data.data.tokenValue);
+            cookie.set(globalConfig.tokenName, res.data.data.tokenValue);
             // 页面跳转
             code();
         }
@@ -87,47 +77,48 @@ const login = () => {
 
 const code = () => {
     // 如果缺少参数
-    if (!isValid(responseType.value) || !isValid(clientId.value) || !isValid(redirectUri.value)) {
+    if (!isValid(getParameterByName('response_type')) || !isValid(getParameterByName('client_id')) || !isValid(getParameterByName('redirect_uri'))) {
+        router.push('/');
         return;
     }
     alert('通过OIDC协议登录！');
-    axios.request({
-        headers: {
-            'Content-Type': 'application/json',
-            [globalConfig.openAuthServerTokenName]: cookie.get(globalConfig.openAuthServerTokenName)
-        },
+    request({
         method: 'POST',
-        url: 'http://openiam.top:8091/oauth2/authorize',
+        url: '/oauth2/authorize',
         params: {
             // eslint-disable-next-line camelcase
-            response_type: responseType.value,
+            response_type: getParameterByName('response_type'),
             // eslint-disable-next-line camelcase
-            client_id: clientId.value,
+            client_id: getParameterByName('client_id'),
             // eslint-disable-next-line camelcase
-            redirect_uri: redirectUri.value,
+            redirect_uri: getParameterByName('redirect_uri'),
             scope: 'oidc'
         },
+    }).success((res: AxiosResponse) => {
+        window.location.href = res.data.data;
+    }).failed((res: AxiosResponse) => {
+        toast.add(responseToastConfig(res));
     }).then((res: AxiosResponse) => {
-        if (res.data.code === 200) {
-            window.location.href = res.data.data;
-        } else if (res.data.code === 901) {
-            router.push({
-                path: '/auth/confirm',
-                query: {
-                    // eslint-disable-next-line camelcase
-                    client_id: res.data.data.client_id,
-                    scope: res.data.data.scope,
-                    // eslint-disable-next-line camelcase
-                    redirect_uri: getParameterByName('redirect_uri')
-                }
-            });
-        } else if (res.data.code === 902) {
-            router.push({
-                path: '/access',
-                query: {backSteps: 2}
-            }).then(() => {
-                toast.add(responseToastConfig(res));
-            });
+        switch (res.data.code) {
+            case 901:
+                router.push({
+                    path: '/auth/confirm',
+                    query: {
+                        // eslint-disable-next-line camelcase
+                        client_id: res.data.data.client_id,
+                        scope: res.data.data.scope,
+                        // eslint-disable-next-line camelcase
+                        redirect_uri: getParameterByName('redirect_uri')
+                    }
+                });
+                break;
+            case 902:
+                router.push({
+                    path: '/access',
+                    query: {backSteps: 2}
+                }).then(() => {
+                    toast.add(responseToastConfig(res));
+                });
         }
     });
 };

@@ -135,12 +135,12 @@ class ApiClient {
                         data: data
                     })
                 ),
-            delete: (id: string[]) =>
+            delete: (ids: string[]) =>
                 new RequestWrapper<T>(
                     this.request<T>({
                         method: 'POST',
                         url: `/${moduleName}/delete`,
-                        data: id
+                        data: ids
                     })
                 ),
             reorder: (leftTarget: string, rightTarget: string) =>
@@ -173,9 +173,9 @@ class ApiClient {
     private setupInterceptors() {
         // 请求拦截器
         this.instance.interceptors.request.use(config => {
-            const token = cookie.get(globalConfig.appTokenName);
+            const token = cookie.get(globalConfig.tokenName);
             if (isValid(token)) {
-                config.headers[globalConfig.appTokenName] = token;
+                config.headers[globalConfig.tokenName] = token;
             }
             config.headers['Content-Type'] = 'application/json';
             return config;
@@ -196,7 +196,7 @@ class ApiClient {
                 signOut();
                 break;
             case 500:
-                cookie.remove(globalConfig.appTokenName);
+                cookie.remove(globalConfig.tokenName);
                 break;
             case 901:
                 router.push({
@@ -236,8 +236,8 @@ export const add = <T extends IBaseFiled>(moduleName: string, data: T) =>
     apiClient.operate(moduleName).add<T>(data);
 export const update = <T extends IBaseFiled>(moduleName: string, data: T) =>
     apiClient.operate(moduleName).update<T>(data);
-export const del = (moduleName: string, id: string[]) =>
-    apiClient.operate(moduleName).delete(id);
+export const del = (moduleName: string, ids: string[]) =>
+    apiClient.operate(moduleName).delete(ids);
 export const reorder = (moduleName: string, leftTarget: string, rightTarget: string) =>
     apiClient.operate(moduleName).reorder(leftTarget, rightTarget);
 export const orderSwap = (moduleName: string, leftTargetBaseId: string, leftTargetOrderNum: string, rightTargetBaseId: string, rightTargetOrderNum: string) =>

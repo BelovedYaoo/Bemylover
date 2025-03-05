@@ -136,30 +136,20 @@ router.beforeEach((to: RouteLocationNormalizedGeneric, from: RouteLocationNormal
         }).then((res: AxiosResponse): void => {
             // 如果存在 Token，存储 Token 并进入首页
             if (isValid(res.data.data.tokenValue)) {
-                cookie.set(globalConfig.appTokenName, res.data.data.tokenValue);
+                cookie.set(globalConfig.tokenName, res.data.data.tokenValue);
                 window.location.href = globalConfig.indexUrl;
             }
         });
     }
     // 获取 Token
-    const tokenValue: string = cookie.get(globalConfig.appTokenName);
+    const tokenValue: string = cookie.get(globalConfig.tokenName);
     // 如果存在 Token，直接放行
     // 否则，如果不存在 Code，跳转到登录页面
     // Token 的有效性判断会在网络请求中进行
     if (isValid(tokenValue)) {
         return next();
     } else if (isNotValid(code)) {
-        next({
-            name: 'login',
-            query: {
-                // eslint-disable-next-line camelcase
-                response_type: 'code',
-                // eslint-disable-next-line camelcase
-                client_id: globalConfig.clientId,
-                // eslint-disable-next-line camelcase
-                redirect_uri: globalConfig.indexUrl
-            }
-        });
+        next({name: 'login'});
     }
 });
 

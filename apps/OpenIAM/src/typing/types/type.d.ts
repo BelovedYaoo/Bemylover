@@ -1,4 +1,4 @@
-import { IBaseFiled } from 'agility-core/src/types/base';
+import { IBaseFiled, ITree } from 'agility-core/src/types/base';
 
 /**
  * (User) 表持久化对象
@@ -15,7 +15,8 @@ export interface IUser extends IBaseFiled {
     roles?: Array<IRole>;
 }
 
-export interface IRole extends IBaseFiled {
+export interface IRole extends IBaseFiled, ITree {
+    domainId?: string;
     roleName?: string;
     roleCode?: string;
     roleDesc?: string;

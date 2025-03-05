@@ -126,6 +126,20 @@ const filedList = ref<Array<ColumnProps>>([
                 <div class="p-dialog-title">{{ recordInfo?.baseId ? '修改' : '新增' }}数据</div>
             </template>
             <div class="field">
+                <label>归属域</label>
+                <InputText
+                    id="domainId"
+                    v-model="recordInfo.domainId"
+                />
+            </div>
+            <div class="field">
+                <label>父节点ID</label>
+                <InputText
+                    id="parentId"
+                    v-model="recordInfo.parentId"
+                />
+            </div>
+            <div class="field">
                 <label>角色名称</label>
                 <InputText
                     id="roleName"

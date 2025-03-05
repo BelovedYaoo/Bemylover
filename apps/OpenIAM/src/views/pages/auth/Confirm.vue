@@ -2,7 +2,8 @@
 import { globalConfig } from '@/service/globalQuote';
 import { getParameterByName, isNotValid } from 'agility-core/src/service/toolkit';
 import LogoSvg from '@/components/LogoSvg.vue';
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import { request } from '@/service/request';
 import cookie from 'js-cookie';
 import { onMounted, ref } from 'vue';
 
@@ -14,19 +15,15 @@ onMounted(() => {
     scope.value = getParameterByName('scope');
     clientId.value = getParameterByName('client_id');
     redirectUri.value = getParameterByName('redirect_uri');
-    if (isNotValid(cookie.get(globalConfig.openAuthServerTokenName))) {
+    if (isNotValid(cookie.get(globalConfig.tokenName))) {
         window.location.href = redirectUri.value;
     }
 });
 
 const doConfirm = () => {
-    axios.request({
-        headers: {
-            'Content-Type': 'application/json',
-            [globalConfig.openAuthServerTokenName]: cookie.get(globalConfig.openAuthServerTokenName)
-        },
+    request({
         method: 'POST',
-        url: 'http://openiam.top:8091/oauth2/doConfirm',
+        url: '/oauth2/doConfirm',
         params: {
             // eslint-disable-next-line camelcase
             client_id: clientId.value,
@@ -40,16 +37,13 @@ const doConfirm = () => {
             redirect_uri: redirectUri.value,
             state: '',
         },
-    }).then((res: AxiosResponse) => {
-        console.log(res);
-        if (res.data.code === 200) {
-            location.href = res.data.redirect_uri;
-        }
+    }).success((res: AxiosResponse) => {
+        location.href = res.data.redirect_uri;
     });
 };
 
 const doDenied = () => {
-    cookie.remove('openToken');
+    cookie.remove(globalConfig.tokenName);
     location.href = redirectUri.value;
 };
 </script>
